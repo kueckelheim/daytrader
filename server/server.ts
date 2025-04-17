@@ -1,21 +1,10 @@
-import { handler } from '../build/handler.js';
-import express from 'express';
-import { IBApiNext } from '@stoqey/ib';
+import http from 'http';
+import { setupWebSocket } from './websocket/index.js';
+import app from './app.ts';
 
-const app = express();
+const server = http.createServer(app);
+setupWebSocket(server)
 
-const ibkrClient = new IBApiNext({
-	port: 4002
-});
-ibkrClient.connect();
-// create a server directory structure (e.g., 'server/')
-// you could place server-related logic such as routes and middlewares here
-
-app.get('/healthcheck', (req, res) => {
-	res.end('ok');
-});
-app.use(handler);
-
-app.listen(3000, () => {
+server.listen(3000, () => {
 	console.log('listening on port 3000');
 });

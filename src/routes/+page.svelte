@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { account } from '$lib/stores/account';
 	import { websocket } from '$lib/stores/websocket';
+	import { MessageType } from '$lib/types/types';
 
 	const requestAccountUpdates = () => {
 		console.log($websocket);
+		$websocket?.send(JSON.stringify({ type: MessageType.SUBSCRIBE_ACCOUNT }));
 	};
 
 	$effect(() => {
@@ -32,7 +34,7 @@
 		</svg>
 	</a>
 	<div class="flex space-x-2 font-mono">
-		<div>Funds: {$account.availableFunds}€</div>
+		<div>Funds: {$account.availableFundsEUR}€</div>
 		<div>Funds: {$account.availableFundsUSD}$</div>
 	</div>
 </header>

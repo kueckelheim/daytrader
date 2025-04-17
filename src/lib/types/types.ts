@@ -1,23 +1,19 @@
-export interface AccountMessage {
-	type: MessageType.ACCOUNT;
-	data: {
-		userId: string;
-	};
+export interface SubscribeAccountMessage {
+	type: MessageType.SUBSCRIBE_ACCOUNT;
 }
 
-export interface PositionsMessage {
-	type: MessageType.POSITIONS;
-	data: {
-		message: string;
-	};
+export interface AccountUpdateMessage {
+	type: MessageType.ACCOUNT_UPDATE;
+	data: Account;
 }
 
 export enum MessageType {
-	ACCOUNT = 'ACCOUNT',
+	SUBSCRIBE_ACCOUNT = 'SUBSCRIBE_ACCOUNT',
+	ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
 	POSITIONS = 'POSITIONS'
 }
 
-export type WebSocketMessage = AccountMessage | PositionsMessage;
+export type WebSocketMessage = SubscribeAccountMessage | AccountUpdateMessage;
 
 export type DataPoint = {
 	x: number | undefined; // timestamp
@@ -58,10 +54,9 @@ export type ToastMessage = {
 };
 
 export type Account = {
-	availableFunds: number | null;
+	availableFundsEUR: number | null;
 	availableFundsUSD: number | null;
 	accountId: string | null;
-	clientId: string | null;
 };
 
 export interface Position {

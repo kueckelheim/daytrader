@@ -1,27 +1,16 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
 	import { account } from '$lib/stores/account';
+	import { websocket } from '$lib/stores/websocket';
 
-	onMount(() => {
-		const socket = new WebSocket('ws://localhost:3000');
-		socket.onopen = () => {
-			console.log('WebSocket connected');
-			socket.send(JSON.stringify({ type: 'ping' }));
-		};
-		socket.onmessage = (event) => {
-			const msg = JSON.parse(event.data);
-			console.log('Received:', msg);
-		};
-		socket.onclose = () => {
-			console.log('WebSocket disconnected');
-		};
+	const requestAccountUpdates = () => {
+		console.log($websocket);
+	};
 
-		socket.onerror = (err) => {
-			console.error('WebSocket error', err);
-		};
+	$effect(() => {
+		if ($websocket) {
+			requestAccountUpdates();
+		}
 	});
-
-	onDestroy(() => {});
 </script>
 
 <header

@@ -1,41 +1,27 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import type { Account } from '$lib/types/types';
-	import { account, orders, positions } from '$lib/stores/account';
-
-	let accountUpdateSource: EventSource;
+	import { account } from '$lib/stores/account';
 
 	onMount(() => {
-		accountUpdateSource = new EventSource('/api/account');
+		const socket = new WebSocket('ws://localhost:3000');
+		socket.onopen = () => {
+			console.log('WebSocket connected');
+			socket.send(JSON.stringify({ type: 'ping' }));
+		};
+		socket.onmessage = (event) => {
+			const msg = JSON.parse(event.data);
+			console.log('Received:', msg);
+		};
+		socket.onclose = () => {
+			console.log('WebSocket disconnected');
+		};
 
-		accountUpdateSource.onmessage = function (event) {
-			// const msg = JSON.parse(event.data);
-			const { account: ac, positions: pos, orders: or, error } = JSON.parse(event.data);
-			if (ac) {
-				console.log('New account message: ', ac);
-				account.set(ac as Account);
-			}
-			if (or) {
-				console.log('New order message: ', or);
-				orders.set(or);
-			}
-			if (pos) {
-				console.log('New position message: ', pos);
-				positions.set(pos);
-			}
-			if (error) {
-				console.log('ERROR');
-				console.error(error);
-			}
+		socket.onerror = (err) => {
+			console.error('WebSocket error', err);
 		};
 	});
 
-	onDestroy(() => {
-		if (accountUpdateSource) {
-			accountUpdateSource.close();
-			console.log('EventSource connection closed');
-		}
-	});
+	onDestroy(() => {});
 </script>
 
 <header

@@ -1,3 +1,24 @@
+export interface AccountMessage {
+	type: MessageType.ACCOUNT;
+	data: {
+		userId: string;
+	};
+}
+
+export interface PositionsMessage {
+	type: MessageType.POSITIONS;
+	data: {
+		message: string;
+	};
+}
+
+export enum MessageType {
+	ACCOUNT = 'ACCOUNT',
+	POSITIONS = 'POSITIONS'
+}
+
+export type WebSocketMessage = AccountMessage | PositionsMessage;
+
 export type DataPoint = {
 	x: number | undefined; // timestamp
 	h: number | undefined; // high price

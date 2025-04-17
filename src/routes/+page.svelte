@@ -41,15 +41,5 @@
 </header>
 
 <div class="flex h-full w-full flex-1 flex-col p-12">
-	<div class="mt-12">
-		<!-- <Orders /> -->
-	</div>
-
-	<div class="mt-12">
-		<!-- <Positions /> -->
-	</div>
-
-	<div class="mt-12">
-		<Scanner />
-	</div>
+	
 </div>

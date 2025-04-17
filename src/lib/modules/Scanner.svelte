@@ -18,7 +18,7 @@
 </script>
 
 <div
-	class="flex max-h-96 w-full max-w-screen-lg flex-col overflow-y-scroll border border-white/15 bg-gray-800 text-white"
+	class="flex w-full flex-1 flex-col overflow-y-auto border border-white/15 bg-gray-800 text-white"
 >
 	<div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
 		<div class="grid w-full min-w-full grid-cols-5 border-b border-gray-700">

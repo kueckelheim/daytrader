@@ -1,5 +1,11 @@
+import type { Contract } from '@stoqey/ib';
+
 export interface SubscribeAccountMessage {
 	type: MessageType.SUBSCRIBE_ACCOUNT;
+}
+
+export interface SubscribeScanner {
+	type: MessageType.SUBSCRIBE_SCAN;
 }
 
 export interface AccountUpdateMessage {
@@ -7,13 +13,24 @@ export interface AccountUpdateMessage {
 	data: Account;
 }
 
+export interface ScanUpdateMessage {
+	type: MessageType.SCAN_UPDATE;
+	data: ScanMatch[];
+}
+
 export enum MessageType {
 	SUBSCRIBE_ACCOUNT = 'SUBSCRIBE_ACCOUNT',
+	SUBSCRIBE_SCAN = 'SUBSCRIBE_SCAN',
 	ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
+	SCAN_UPDATE = 'SCAN_UPDATE',
 	POSITIONS = 'POSITIONS'
 }
 
-export type WebSocketMessage = SubscribeAccountMessage | AccountUpdateMessage;
+export type WebSocketMessage =
+	| SubscribeAccountMessage
+	| AccountUpdateMessage
+	| SubscribeScanner
+	| ScanUpdateMessage;
 
 export type DataPoint = {
 	x: number | undefined; // timestamp
@@ -70,3 +87,14 @@ export interface Position {
 	exitPoint?: number; // Price at which the position was sold
 	exitDate?: EpochTimeStamp; // Timestamp of the exit
 }
+
+export type ScanMatch = {
+	symbol: string;
+	isTopGainer: boolean;
+	isHotByVolume: boolean;
+	conId: number | undefined;
+	exchange: string | undefined;
+	currency: string | undefined;
+	tradingHours: string | undefined;
+	contract: Contract;
+};

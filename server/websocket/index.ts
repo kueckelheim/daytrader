@@ -2,11 +2,13 @@ import { Server } from 'http';
 import { WebSocketServer } from 'ws';
 import { handleAccountSubscription, initAccountUpdates } from './subscriptions/accountUpdates';
 import { MessageType, WebSocketMessage } from '../../src/lib/types/types';
+import { handleScanSubscription, initScanner } from './subscriptions/scanner';
 
 export function setupWebSocket(server: Server) {
 	const wss = new WebSocketServer({ server });
 
 	initAccountUpdates();
+	initScanner();
 
 	wss.on('connection', (ws) => {
 		ws.on('message', (msg) => {
@@ -15,6 +17,9 @@ export function setupWebSocket(server: Server) {
 			switch (message.type) {
 				case MessageType.SUBSCRIBE_ACCOUNT:
 					handleAccountSubscription(ws);
+					break;
+				case MessageType.SUBSCRIBE_SCAN:
+					handleScanSubscription(ws);
 					break;
 				default:
 					console.log('Unknown message type:', message.type);

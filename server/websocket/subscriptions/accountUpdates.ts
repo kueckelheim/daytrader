@@ -1,11 +1,6 @@
 import { WebSocket } from 'ws';
 import { subscribeToAccountUpdates } from '../../ibrk/methods/subscribeToAccountUpdates';
-import {
-	Account,
-	AccountUpdateMessage,
-	MessageType,
-	WebSocketMessage
-} from '../../../src/lib/types/types';
+import { Account, AccountUpdateMessage, MessageType } from '../../../src/lib/types/types';
 
 const accountSubscriptionClients = new Set<WebSocket>();
 let latestAccountUpdate: Account | null = null;

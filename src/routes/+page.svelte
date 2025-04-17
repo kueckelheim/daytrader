@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Scanner from '$lib/modules/Scanner.svelte';
 	import { account } from '$lib/stores/account';
 	import { websocket } from '$lib/stores/websocket';
 	import { MessageType } from '$lib/types/types';
@@ -49,6 +50,6 @@
 	</div>
 
 	<div class="mt-12">
-		<!-- <Scanner /> -->
+		<Scanner />
 	</div>
 </div>

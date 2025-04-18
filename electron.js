@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, globalShortcut } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -58,7 +58,7 @@ const createWindow = () => {
 			action: 'allow',
 			overrideBrowserWindowOptions: {
 				width: 800,
-				height: 600
+				height: 400
 			}
 		};
 	});
@@ -72,6 +72,16 @@ app.whenReady().then(async () => {
 	} catch (err) {
 		console.error('Error starting server:', err);
 	}
+
+	globalShortcut.register('CommandOrControl+K', () => {
+		if (!win || win.isDestroyed()) {
+			win = new BrowserWindow({ width: 800, height: 400 });
+			win.loadURL('http://localhost:3000');
+			win.on('closed', () => (win = null));
+		} else {
+			win.focus();
+		}
+	});
 });
 
 app.on('window-all-closed', () => {
@@ -80,4 +90,8 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
 	if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+
+app.on('will-quit', () => {
+	globalShortcut.unregisterAll();
 });

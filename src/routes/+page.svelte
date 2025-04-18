@@ -2,6 +2,7 @@
 	import { websocket } from '$lib/stores/websocket';
 	import { MessageType } from '$lib/types/types';
 	import type { Contract } from '@stoqey/ib';
+	import { onMount, tick } from 'svelte';
 
 	let contracts: Contract[] = $state([]);
 	let container = $state(null) as unknown as HTMLElement;
@@ -82,6 +83,11 @@
 			event.preventDefault();
 		}
 	};
+
+	onMount(async () => {
+		await tick();
+		container.querySelector('input')?.focus();
+	});
 </script>
 
 <div

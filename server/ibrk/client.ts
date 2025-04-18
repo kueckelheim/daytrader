@@ -7,7 +7,7 @@ function getClient() {
 		console.log('Creating IBApiNext client instance');
 		clientInstance = new IBApiNext({ port: 4002 });
 		console.log('Connecting to IBApi');
-		clientInstance.connect();
+		clientInstance.connect(0);
 	}
 
 	return clientInstance;

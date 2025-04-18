@@ -8,7 +8,6 @@
 	let container = $state(null) as unknown as HTMLElement;
 
 	const requestAccountUpdates = () => {
-		console.log($websocket);
 		$websocket?.send(JSON.stringify({ type: MessageType.SUBSCRIBE_ACCOUNT }));
 	};
 
@@ -26,6 +25,7 @@
 			}
 			const data = (await response.json()) as Contract[];
 			contracts = data;
+			console.log(data);
 		} catch (error) {
 			console.error('Error fetching search results:', error);
 		}
@@ -190,7 +190,7 @@
 				<!-- Active: "bg-gray-800 text-white outline-hidden" -->
 				<li class="flex w-full" tabindex="-1" role="option" aria-selected="false">
 					<a
-						href={`/${contract.symbol}/${contract.conId}`}
+						href={`/${contract.conId}`}
 						target="_blank"
 						class="group flex w-full cursor-pointer items-center rounded-md px-3 py-2 select-none hover:bg-gray-800 hover:text-white hover:outline-hidden focus:text-white focus:outline-hidden"
 					>

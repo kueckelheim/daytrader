@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { hello } from '../controllers/example';
+import { search } from '../controllers/searchSymbol';
 
 const router = Router();
-router.get('/hello', hello);
+
+router.get('/search', search);
 
 export default router;

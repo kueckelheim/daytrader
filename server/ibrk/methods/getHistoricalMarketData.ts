@@ -13,7 +13,6 @@ export default async (contract: Contract) => {
 		false,
 		2
 	);
-	console.log('alsdkj', response);
 
 	const formatted = response.map((item) => ({
 		x: item.time ? parseInt(item.time) * 1000 : undefined,

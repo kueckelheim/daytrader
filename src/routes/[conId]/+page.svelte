@@ -1,14 +1,19 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import Chart from '$lib/component/Chart/Chart.svelte';
-	import { CHART_RANGE, type DataPoint } from '$lib/types/types';
+	import { websocket } from '$lib/stores/websocket';
+	import {
+		CHART_RANGE,
+		MessageType,
+		type DataPoint,
+		type WebSocketMessage
+	} from '$lib/types/types';
 	import calculateEma from '$lib/utils/calculateEma';
 	import calculateMACD from '$lib/utils/calculateMACD';
 	import calculateVWAP from '$lib/utils/calculateVWAP';
 	import type { ContractDetails } from '@stoqey/ib';
 	import { onMount } from 'svelte';
 
-	let loading = $state(true);
 	let baseData: DataPoint[] = $state([]);
 	let contractDetails: ContractDetails | undefined = $state(undefined);
 	let range = $state(CHART_RANGE.H1);
@@ -42,6 +47,41 @@
 	// 			)
 	// 		: null
 	// );
+
+	let subsribed = $state(false);
+	const requestLatestBarUpdates = () => {
+		if ($websocket) {
+			$websocket.send(
+				JSON.stringify({ type: MessageType.SUBSCRIBE_LASTEST_BAR, data: contractDetails?.contract })
+			);
+			subsribed = true;
+			$websocket.onmessage = (event) => {
+				const message: WebSocketMessage = JSON.parse(event.data);
+				if (message.type === MessageType.LASTEST_BAR) {
+					const existingBar = baseData.find((bar) => bar.x === parseInt(message.data.time!) * 1000);
+					const formatted: DataPoint = {
+						h: message.data.high,
+						l: message.data.low,
+						o: message.data.open,
+						c: message.data.close,
+						v: message.data.volume,
+						x: parseInt(message.data.time!) * 1000
+					};
+					if (existingBar) {
+						baseData = [...baseData.slice(0, -1), formatted];
+					} else {
+						baseData = [...baseData, formatted];
+					}
+				}
+			};
+		}
+	};
+
+	$effect(() => {
+		if ($websocket && contractDetails && baseData.length && !subsribed) {
+			requestLatestBarUpdates();
+		}
+	});
 
 	onMount(async () => {
 		const response = await fetch(`/api/marketData?conId=${page.params.conId}`);

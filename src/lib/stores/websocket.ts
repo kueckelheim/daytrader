@@ -40,8 +40,5 @@ const handleMessage = (message: WebSocketMessage) => {
 			console.log('Received scan update:', message);
 			matches.set(message.data);
 			break;
-
-		default:
-			console.log('Unknown message type:', message.type);
 	}
 };

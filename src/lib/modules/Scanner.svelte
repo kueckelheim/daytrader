@@ -4,7 +4,6 @@
 	import { MessageType } from '$lib/types/types';
 
 	const requestScannerUpdates = () => {
-		console.log($websocket);
 		$websocket?.send(JSON.stringify({ type: MessageType.SUBSCRIBE_SCAN }));
 	};
 
@@ -13,8 +12,6 @@
 			requestScannerUpdates();
 		}
 	});
-
-	$effect(() => console.log($matches));
 </script>
 
 <div

@@ -3,6 +3,7 @@ import { WebSocketServer } from 'ws';
 import { handleAccountSubscription, initAccountUpdates } from './subscriptions/accountUpdates';
 import { MessageType, WebSocketMessage } from '../../src/lib/types/types';
 import { handleScanSubscription, initScanner } from './subscriptions/scanner';
+import { handleHistoricalMarketDataUpdateSubscription } from './subscriptions/historicalMarketDataUpdate';
 
 export function setupWebSocket(server: Server) {
 	const wss = new WebSocketServer({ server });
@@ -20,6 +21,9 @@ export function setupWebSocket(server: Server) {
 					break;
 				case MessageType.SUBSCRIBE_SCAN:
 					handleScanSubscription(ws);
+					break;
+				case MessageType.SUBSCRIBE_LASTEST_BAR:
+					handleHistoricalMarketDataUpdateSubscription(ws, message.data);
 					break;
 				default:
 					console.log('Unknown message type:', message.type);

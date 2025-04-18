@@ -1,4 +1,14 @@
-import type { Contract } from '@stoqey/ib';
+import type { Bar, Contract } from '@stoqey/ib';
+
+export interface LatestBarMessage {
+	type: MessageType.LASTEST_BAR;
+	data: Bar;
+}
+
+export interface SubscribeLastestBarMessage {
+	type: MessageType.SUBSCRIBE_LASTEST_BAR;
+	data: Contract;
+}
 
 export interface SubscribeAccountMessage {
 	type: MessageType.SUBSCRIBE_ACCOUNT;
@@ -23,14 +33,18 @@ export enum MessageType {
 	SUBSCRIBE_SCAN = 'SUBSCRIBE_SCAN',
 	ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
 	SCAN_UPDATE = 'SCAN_UPDATE',
-	POSITIONS = 'POSITIONS'
+	POSITIONS = 'POSITIONS',
+	LASTEST_BAR = 'LASTEST_BAR',
+	SUBSCRIBE_LASTEST_BAR = 'SUBSCRIBE_LASTEST_BAR'
 }
 
 export type WebSocketMessage =
 	| SubscribeAccountMessage
 	| AccountUpdateMessage
 	| SubscribeScanner
-	| ScanUpdateMessage;
+	| ScanUpdateMessage
+	| LatestBarMessage
+	| SubscribeLastestBarMessage;
 
 export type DataPoint = {
 	x: number | undefined; // timestamp

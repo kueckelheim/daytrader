@@ -1,9 +1,14 @@
 import { WebSocket } from 'ws';
 import { MessageType, PNLUpdate } from '../../../src/lib/types/types';
+import subscribeToPNL from '../../ibrk/methods/subscribeToPNL';
 
 const activePNLSubscriptions = new Map<string, () => void>();
 
-export async function handlePNLPositionSubscription(ws: WebSocket, conId: number, accountId: string) {
+export async function handlePNLPositionSubscription(
+	ws: WebSocket,
+	conId: number,
+	accountId: string
+) {
 	const key = `${ws}_${conId}_${accountId}`;
 	console.log(`Client subscribed to pnl for ${conId}`);
 
@@ -36,7 +41,11 @@ export async function handlePNLPositionSubscription(ws: WebSocket, conId: number
 	}
 }
 
-export async function handlePNLPositionUnSubscribe(ws: WebSocket, conId: number, accountId: string) {
+export async function handlePNLPositionUnSubscribe(
+	ws: WebSocket,
+	conId: number,
+	accountId: string
+) {
 	const key = `${ws}_${conId}_${accountId}`;
 	const unsubscribe = activePNLSubscriptions.get(key);
 

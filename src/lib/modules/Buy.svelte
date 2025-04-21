@@ -101,8 +101,6 @@
 	onDestroy(() => {
 		$websocket?.send(JSON.stringify({ type: MessageType.UNSUBSCRIBE_OPEN_ORDERS }));
 	});
-
-	$effect(() => console.log($openOrders));
 </script>
 
 <form onsubmit={handleSubmit} class="inline-flex flex-col">

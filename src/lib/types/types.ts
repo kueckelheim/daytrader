@@ -1,4 +1,17 @@
-import type { Bar, Contract, OpenOrder } from '@stoqey/ib';
+import type { Bar, Contract, OpenOrder, Position } from '@stoqey/ib';
+
+export interface SubscribePositionsMessage {
+	type: MessageType.SUBSRIBE_POSITIONS_UPDATE;
+}
+
+export interface UnsubscribePositionsMessage {
+	type: MessageType.UNSUBSRIBE_POSITIONS_UPDATE;
+}
+
+export interface PositionsUpdateMessage {
+	type: MessageType.POSITIONS_UPDATE;
+	data: Position[];
+}
 
 export interface SubscribeOpenOrdersMessage {
 	type: MessageType.SUBSCRIBE_OPEN_ORDERS;
@@ -51,7 +64,10 @@ export enum MessageType {
 	SUBSCRIBE_LASTEST_BAR = 'SUBSCRIBE_LASTEST_BAR',
 	SUBSCRIBE_OPEN_ORDERS = 'SUBSCRIBE_OPEN_ORDERS',
 	UNSUBSCRIBE_OPEN_ORDERS = 'UNSUBSCRIBE_OPEN_ORDERS',
-	OPEN_ORDERS_UPDATE = 'OPEN_ORDERS_UPDATE'
+	OPEN_ORDERS_UPDATE = 'OPEN_ORDERS_UPDATE',
+	SUBSRIBE_POSITIONS_UPDATE = 'SUBSRIBE_POSITIONS_UPDATE',
+	UNSUBSRIBE_POSITIONS_UPDATE = 'UNSUBSRIBE_POSITIONS_UPDATE',
+	POSITIONS_UPDATE = 'POSITIONS_UPDATE'
 }
 
 export type WebSocketMessage =
@@ -63,7 +79,10 @@ export type WebSocketMessage =
 	| SubscribeLastestBarMessage
 	| OpenOrdersUpdateMessage
 	| SubscribeOpenOrdersMessage
-	| UnsubscribeOpenOrdersMessage;
+	| UnsubscribeOpenOrdersMessage
+	| SubscribePositionsMessage
+	| PositionsUpdateMessage
+	| UnsubscribePositionsMessage;
 
 export type DataPoint = {
 	x: number | undefined; // timestamp
@@ -109,17 +128,17 @@ export type Account = {
 	accountId: string | null;
 };
 
-export interface Position {
-	id?: number;
-	symbol: string; // Symbol of the stock or asset being traded
-	entryPoint: number; // Price at which the position is entered
-	stopLoss: number; // Price at which the position will be sold to prevent further loss
-	target?: number; // Price at which the position aims to be exited for profit
-	entryDate: EpochTimeStamp; // Timestamp of the entry
-	quantity: number; // Number of units being traded
-	exitPoint?: number; // Price at which the position was sold
-	exitDate?: EpochTimeStamp; // Timestamp of the exit
-}
+// export interface Position {
+// 	id?: number;
+// 	symbol: string; // Symbol of the stock or asset being traded
+// 	entryPoint: number; // Price at which the position is entered
+// 	stopLoss: number; // Price at which the position will be sold to prevent further loss
+// 	target?: number; // Price at which the position aims to be exited for profit
+// 	entryDate: EpochTimeStamp; // Timestamp of the entry
+// 	quantity: number; // Number of units being traded
+// 	exitPoint?: number; // Price at which the position was sold
+// 	exitDate?: EpochTimeStamp; // Timestamp of the exit
+// }
 
 export type ScanMatch = {
 	symbol: string;

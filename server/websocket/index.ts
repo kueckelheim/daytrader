@@ -4,7 +4,16 @@ import { handleAccountSubscription, initAccountUpdates } from './subscriptions/a
 import { MessageType, WebSocketMessage } from '../../src/lib/types/types';
 import { handleScanSubscription, initScanner } from './subscriptions/scanner';
 import { handleHistoricalMarketDataUpdateSubscription } from './subscriptions/historicalMarketDataUpdate';
-import { handleOpenOrderUpdate, handleUnsubcribeOpenOrders, initOrderUpdates } from './subscriptions/ordersUpdate';
+import {
+	handleOpenOrderUpdate,
+	handleUnsubcribeOpenOrders,
+	initOrderUpdates
+} from './subscriptions/ordersUpdate';
+import {
+	handleSubscribePositionsUpdate,
+	handleUnsubcribePositions,
+	initPositionsUpdates
+} from './subscriptions/positionsUpdate';
 
 export function setupWebSocket(server: Server) {
 	const wss = new WebSocketServer({ server });
@@ -12,6 +21,7 @@ export function setupWebSocket(server: Server) {
 	initAccountUpdates();
 	initScanner();
 	initOrderUpdates();
+	initPositionsUpdates();
 
 	wss.on('connection', (ws) => {
 		ws.on('message', (msg) => {
@@ -29,6 +39,12 @@ export function setupWebSocket(server: Server) {
 					break;
 				case MessageType.UNSUBSCRIBE_OPEN_ORDERS:
 					handleUnsubcribeOpenOrders(ws);
+					break;
+				case MessageType.SUBSRIBE_POSITIONS_UPDATE:
+					handleSubscribePositionsUpdate(ws);
+					break;
+				case MessageType.UNSUBSRIBE_POSITIONS_UPDATE:
+					handleUnsubcribePositions(ws);
 					break;
 				case MessageType.SUBSCRIBE_LASTEST_BAR:
 					handleHistoricalMarketDataUpdateSubscription(ws, message.data);

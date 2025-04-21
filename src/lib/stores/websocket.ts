@@ -1,6 +1,6 @@
 import { MessageType, type WebSocketMessage } from '$lib/types/types';
 import { writable } from 'svelte/store';
-import { account, openOrders } from './account';
+import { account, openOrders, positions } from './account';
 import { matches } from './scanner';
 
 // Create a writable store to hold the WebSocket instance
@@ -41,6 +41,10 @@ const handleMessage = (message: WebSocketMessage) => {
 		case MessageType.OPEN_ORDERS_UPDATE:
 			console.log('Received open orders update:', message);
 			openOrders.set(message.data);
+			break;
+		case MessageType.POSITIONS_UPDATE:
+			console.log('Received positions update:', message);
+			positions.set(message.data);
 			break;
 		case MessageType.SCAN_UPDATE:
 			console.log('Received scan update:', message);

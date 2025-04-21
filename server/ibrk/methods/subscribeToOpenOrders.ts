@@ -29,7 +29,7 @@ export async function subscribeToOpenOrdersUpdates(
 				updateHandler(update, onUpdate);
 			},
 			complete: () => {
-				console.log('IBKR account update subscription completed.');
+				console.log('IBKR order subscription completed.');
 			},
 			error: (err) => {
 				console.error('IBKR subscription error:', err);
@@ -37,7 +37,7 @@ export async function subscribeToOpenOrdersUpdates(
 			}
 		});
 	} catch (err) {
-		console.error('Failed to fetch managed accounts:', err);
+		console.error('Failed to subscribe to open orders:', err);
 		onError(err);
 	}
 }

@@ -2,7 +2,8 @@
 	import { page } from '$app/state';
 	import Chart from '$lib/component/Chart/Chart.svelte';
 	import Buy from '$lib/modules/Buy.svelte';
-	import { account } from '$lib/stores/account';
+	import Sell from '$lib/modules/Sell.svelte';
+	import { account, positions } from '$lib/stores/account';
 	import { websocket } from '$lib/stores/websocket';
 	import {
 		CHART_RANGE,
@@ -42,13 +43,13 @@
 		limitPrice = parseFloat(y.toFixed(2));
 	};
 
-	// const position = $derived(
-	// 	$positions.length
-	// 		? $positions.find(
-	// 				(pos) => pos.contract.conId === data.contractDetails[0].contract.conId && !!pos.pos
-	// 			)
-	// 		: null
-	// );
+	const position = $derived(
+		$positions.length
+			? $positions.find(
+					(pos) => pos.contract.conId === contractDetails?.contract.conId && !!pos.pos
+				)
+			: null
+	);
 
 	let subsribed = $state(false);
 	const requestLatestBarUpdates = () => {
@@ -101,9 +102,13 @@
 </script>
 
 {#if baseData.length && contractDetails}
-	<div class={`grid ${limitPrice ? 'grid-cols-3' : 'grid-cols-2'} w-full gap-12 max-h-screen h-full grow overflow-y-auto`}>
-		<div class="col-span-2 w-full max-h-screen">
-			<div class="flex flex-col border border-white/15 bg-gray-800 p-4 text-white max-h-screen h-full grow">
+	<div
+		class={`grid ${limitPrice ? 'grid-cols-3' : 'grid-cols-2'} h-full max-h-screen w-full grow gap-12 overflow-y-auto`}
+	>
+		<div class="col-span-2 max-h-screen w-full">
+			<div
+				class="flex h-full max-h-screen grow flex-col border border-white/15 bg-gray-800 p-4 text-white"
+			>
 				<div class="flex items-center space-x-2">
 					<h2 class="mt-2 mb-2 text-2xl font-semibold">{contractDetails.contract.symbol}</h2>
 					{#if currentPrice && currentPricePercentChangeRange}
@@ -173,17 +178,15 @@
 						{$account.availableFundsUSD} USD
 					</div>
 				</div>
-				<!-- {#if position}
-				<div
-					class="flex w-full flex-col border border-white/15 bg-gray-800 p-4 text-white"
-				>
-					<Sell
-						contract={data.contractDetails[0].contract}
-						currentPrice={currentData[currentData.length - 1].c!}
-						{position}
-					></Sell>
-				</div>
-			{/if} -->
+				{#if position}
+					<div class="flex w-full flex-col border border-white/15 bg-gray-800 p-4 text-white">
+						<Sell
+							contract={contractDetails?.contract}
+							currentPrice={currentData[currentData.length - 1].c!}
+							{position}
+						></Sell>
+					</div>
+				{/if}
 				<div class="flex w-full flex-col border border-white/15 bg-gray-800 p-4 text-white">
 					<Buy
 						contract={contractDetails.contract}

@@ -3,7 +3,7 @@
 	import { websocket } from '$lib/stores/websocket';
 	import { MessageType } from '$lib/types/types';
 	import cancelOrder from '$lib/utils/cancelOrder';
-	import type { Contract, OpenOrder } from '@stoqey/ib';
+	import { type Contract, type OpenOrder } from '@stoqey/ib';
 	import { onDestroy } from 'svelte';
 
 	interface Props {
@@ -21,7 +21,15 @@
 
 	let contractOpenOrders: OpenOrder[] = $derived.by(() => {
 		if (!$openOrders.length) return [];
-		return $openOrders.filter((order) => order.contract.conId === contract.conId);
+		return $openOrders.filter(
+			(order) => order.contract.conId === contract.conId && order.orderState.status !== 'Filled'
+		);
+	});
+	let contractFilledOrders: OpenOrder[] = $derived.by(() => {
+		if (!$openOrders.length) return [];
+		return $openOrders.filter(
+			(order) => order.contract.conId === contract.conId && order.orderState.status === 'Filled'
+		);
 	});
 
 	// let nShares = $derived.by(() => {
@@ -194,9 +202,8 @@
 
 	<table class="w-full overflow-hidden text-left whitespace-nowrap">
 		<colgroup>
-			<col class="w-full sm:w-4/12" />
+			<col class="w-full sm:w-5/12" />
 			<col class="lg:w-2/12" />
-			<col class="lg:w-1/12" />
 			<col class="lg:w-1/12" />
 			<col class="lg:w-1/12" />
 			<col class="lg:w-1/12" />
@@ -205,7 +212,6 @@
 		<thead class="border-b border-white/10 text-xs/6 text-gray-200">
 			<tr>
 				<th scope="col" class="px-0.5 py-2 text-xs/6 font-semibold">Status</th>
-				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Symbol</th>
 				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Action</th>
 				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Type</th>
 				<th scope="col" class="px-0.5 py-2 text-right text-xs/6 font-semibold sm:text-left">Qnt</th>
@@ -219,11 +225,6 @@
 					<td class="px-0.5 py-2">
 						<div class="flex gap-x-3">
 							<div class="font-mono text-xs/6 text-gray-400">{order.orderState.status}</div>
-						</div>
-					</td>
-					<td class="hidden px-0.5 py-2 sm:table-cell">
-						<div class="flex gap-x-3">
-							<div class="font-mono text-xs/6 text-gray-400">{order.contract.symbol}</div>
 						</div>
 					</td>
 					<td class="hidden px-0.5 py-2 sm:table-cell">
@@ -252,6 +253,62 @@
 							onclick={() => cancelOrder(order.orderId)}
 							class="cursor-pointer text-red-500 hover:text-red-400">Cancel</button
 						>
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+{/if}
+
+{#if contractFilledOrders.length}
+	<h3 class="mt-8 font-semibold text-gray-400">Filled orders:</h3>
+
+	<table class="w-full overflow-hidden text-left whitespace-nowrap">
+		<colgroup>
+			<col class="lg:w-1/12" />
+			<col class="lg:w-1/12" />
+			<col class="lg:w-1/12" />
+			<col class="lg:w-1/12" />
+			<col class="lg:w-1/12" />
+		</colgroup>
+		<thead class="border-b border-white/10 text-xs/6 text-gray-200">
+			<tr>
+				<th scope="col" class="px-0.5 py-2 text-xs/6 font-semibold">Limit</th>
+				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell"
+					>Avg Fill</th
+				>
+				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Com</th>
+				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Type</th>
+				<th scope="col" class="px-0.5 py-2 text-right text-xs/6 font-semibold sm:text-left">Qnt</th>
+			</tr>
+		</thead>
+		<tbody class="divide-y divide-white/5">
+			{#each contractFilledOrders as order}
+				<tr>
+					<td class="px-0.5 py-2">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.order.lmtPrice}</div>
+						</div>
+					</td>
+					<td class="hidden px-0.5 py-2 sm:table-cell">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.orderStatus?.avgFillPrice}</div>
+						</div>
+					</td>
+					<td class="hidden px-0.5 py-2 sm:table-cell">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.orderState?.commission}</div>
+						</div>
+					</td>
+					<td class="px-0.5 py-2 text-xs/6">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.order.orderType}</div>
+						</div>
+					</td>
+					<td class="px-0.5 py-2 text-xs/6">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.order.totalQuantity}</div>
+						</div>
 					</td>
 				</tr>
 			{/each}

@@ -4,13 +4,7 @@ import client from '../client';
 
 const updateHandler = (update: OpenOrdersUpdate, onUpdate: (update: any) => void) => {
 	if (update.all?.length) {
-		onUpdate(
-			update.all.filter(
-				(order) =>
-					order.orderState.status !== OrderStatus.Filled &&
-					order.orderState.status !== OrderStatus.Cancelled
-			)
-		);
+		onUpdate(update.all.filter((order) => order.orderState.status !== OrderStatus.Cancelled));
 	}
 };
 

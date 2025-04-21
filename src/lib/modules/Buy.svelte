@@ -279,6 +279,7 @@
 				>
 				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Com</th>
 				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Type</th>
+				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Action</th>
 				<th scope="col" class="px-0.5 py-2 text-right text-xs/6 font-semibold sm:text-left">Qnt</th>
 			</tr>
 		</thead>
@@ -303,6 +304,11 @@
 					<td class="px-0.5 py-2 text-xs/6">
 						<div class="flex gap-x-3">
 							<div class="font-mono text-xs/6 text-gray-400">{order.order.orderType}</div>
+						</div>
+					</td>
+					<td class="px-0.5 py-2 text-xs/6">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.order.action}</div>
 						</div>
 					</td>
 					<td class="px-0.5 py-2 text-xs/6">

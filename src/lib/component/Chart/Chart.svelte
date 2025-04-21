@@ -187,4 +187,4 @@
 	<span>C: {tooltipData?.c?.toFixed(2) || ''}</span>
 	<span>H: {tooltipData?.h?.toFixed(2) || ''}</span>
 </div>
-<canvas class="mt flex w-[4000px] flex-shrink-0 grow" bind:this={canvas}></canvas>
+<canvas class="flex max-h-full w-[4000px] flex-shrink-0 grow" bind:this={canvas}></canvas>

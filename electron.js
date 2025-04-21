@@ -4,6 +4,15 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { spawn } from 'child_process';
 import waitOn from 'wait-on'; // Add this package to wait for the server to be ready
+import { exec } from 'child_process';
+
+exec('lsof -ti:3000 | xargs kill -9', (err, stdout, stderr) => {
+	if (err) {
+		console.error(`Error killing process: ${err.message}`);
+		return;
+	}
+	console.log(`Killed process on port 3000`);
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

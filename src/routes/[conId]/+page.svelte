@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import Chart from '$lib/component/Chart/Chart.svelte';
+	import Buy from '$lib/modules/Buy.svelte';
+	import { account } from '$lib/stores/account';
 	import { websocket } from '$lib/stores/websocket';
 	import {
 		CHART_RANGE,
@@ -94,13 +96,14 @@
 		};
 		baseData = body.data;
 		contractDetails = body.contractDetails;
-		loading = false;
 	});
 </script>
 
 {#if baseData.length && contractDetails}
-	<div class="grid grid-cols-2 gap-12">
-		<div class="col-span-2 flex w-full flex-col border border-white/15 bg-gray-800 p-4 text-white">
+	<div class={`grid ${limitPrice ? 'grid-cols-3' : 'grid-cols-2'} w-full gap-12 max-h-screen h-full`}>
+		<div
+			class="col-span-2 flex max-h-full w-full flex-col border border-white/15 bg-gray-800 text-white p-4"
+		>
 			<div class="flex items-center space-x-2">
 				<h2 class="mt-2 mb-2 text-2xl font-semibold">{contractDetails.contract.symbol}</h2>
 				{#if currentPrice && currentPricePercentChangeRange}
@@ -139,5 +142,51 @@
 				onClick={handleClick}
 			/>
 		</div>
+		{#if limitPrice}
+			<div class="flex w-full max-w-screen-sm flex-col space-y-8 p-8">
+				<div class="flex w-full justify-between">
+					<button type="button" aria-label="close" class="cursor-pointer hover:text-gray-300 text-gray-500" onclick={() => (limitPrice = undefined)}>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="size-6"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M15.75 19.5 8.25 12l7.5-7.5"
+							/>
+						</svg>
+					</button>
+
+					<div class="text-xs text-gray-400">
+						{$account.availableFundsEUR} EUR |
+						{$account.availableFundsUSD} USD
+					</div>
+				</div>
+				<!-- {#if position}
+				<div
+					class="flex w-full flex-col border border-white/15 bg-gray-800 p-4 text-white"
+				>
+					<Sell
+						contract={data.contractDetails[0].contract}
+						currentPrice={currentData[currentData.length - 1].c!}
+						{position}
+					></Sell>
+				</div>
+			{/if} -->
+				<div class="flex w-full flex-col border border-white/15 bg-gray-800 p-4 text-white">
+					<Buy
+						contract={contractDetails.contract}
+						currentPrice={currentData[currentData.length - 1].c!}
+						bind:limitPrice
+						bind:target
+					></Buy>
+				</div>
+			</div>
+		{/if}
 	</div>
 {/if}

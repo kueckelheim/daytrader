@@ -15,7 +15,6 @@ export const getMarketData = async (req: Request, res: Response): Promise<Respon
 
 		const data = await getHistoricalMarketData(contractDetails[0].contract);
 
-		console.log(contractDetails);
 		return res.json({ contractDetails: contractDetails[0], data });
 	} catch (err: unknown) {
 		console.error('[controllers - marketData] - error:\n', err);

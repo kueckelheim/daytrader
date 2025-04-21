@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { cancel, place } from '../ibrk/methods/order';
+import { cancel, place, sell } from '../ibrk/methods/order';
 
 export const placeOrder = async (req: Request, res: Response): Promise<Response> => {
 	try {
@@ -48,5 +48,29 @@ export const cancelOrder = async (req: Request, res: Response): Promise<Response
 	} catch (err) {
 		console.error('[order] error:', err);
 		return res.status(500).json({ error: 'Order cancelling failed' });
+	}
+};
+
+export const sellPosition = async (req: Request, res: Response): Promise<Response> => {
+	try {
+		const { nShares, conId, limitPrice, accountId, exchange, orderType } = req.body;
+
+		if (
+			!nShares ||
+			!conId ||
+			!accountId ||
+			!exchange ||
+			!orderType ||
+			(orderType === 'LMT' && !limitPrice)
+		) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		const orderId = await sell({ nShares, conId, accountId, exchange, orderType, limitPrice });
+
+		return res.status(200).json({ orderId });
+	} catch (err) {
+		console.error('[order] error:', err);
+		return res.status(400).json({ error: 'Invalid request body' });
 	}
 };

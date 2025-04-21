@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AccountPositionsUpdate, OpenOrdersUpdate, OrderStatus } from '@stoqey/ib';
+import { AccountPositionsUpdate } from '@stoqey/ib';
 import client from '../client';
 
 const updateHandler = (
@@ -14,18 +14,18 @@ const updateHandler = (
 
 export async function subscribeToPositionsUpdates(
 	onUpdate: (update: any) => void,
-	onError: (err: any) => void
+	onError: (err: any) => void,
+	accountId: string
 ) {
 	try {
 		console.log('subscriping to position updates');
-		const accounts = await client.getManagedAccounts();
 
 		// Subscribe to account updates from IBKR
 		const obs = client.getPositions();
 
 		obs.subscribe({
 			next: (update) => {
-				updateHandler(update, onUpdate, accounts[0]);
+				updateHandler(update, onUpdate, accountId);
 			},
 			complete: () => {
 				console.log('IBKR position updates subscription completed.');

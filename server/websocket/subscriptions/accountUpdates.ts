@@ -5,7 +5,7 @@ import { Account, AccountUpdateMessage, MessageType } from '../../../src/lib/typ
 const accountSubscriptionClients = new Set<WebSocket>();
 let latestAccountUpdate: Account | null = null;
 
-export function initAccountUpdates() {
+export function initAccountUpdates(accountId: string) {
 	console.log('Initializing account updates...');
 	subscribeToAccountUpdates(
 		(update) => {
@@ -25,7 +25,8 @@ export function initAccountUpdates() {
 		},
 		(err) => {
 			console.error('Account update error:', err);
-		}
+		},
+		accountId
 	);
 }
 

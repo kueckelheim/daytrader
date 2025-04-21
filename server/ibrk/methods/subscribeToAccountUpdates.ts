@@ -39,12 +39,12 @@ const updateHandler = (value: AccountUpdatesUpdate, onUpdate: (update: any) => v
 
 export async function subscribeToAccountUpdates(
 	onUpdate: (update: any) => void,
-	onError: (err: any) => void
+	onError: (err: any) => void,
+	accountId: string
 ) {
 	try {
 		console.log('subscriping to account updates');
-		const accounts = await client.getManagedAccounts();
-		account.accountId = accounts[0];
+		account.accountId = accountId;
 
 		// Subscribe to account updates from IBKR
 		const accountUpdatesObservable = client.getAccountUpdates();

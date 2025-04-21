@@ -14,15 +14,22 @@ import {
 	handleUnsubcribePositions,
 	initPositionsUpdates
 } from './subscriptions/positionsUpdate';
-import { handlePNLSubscription, handlePNLUnSubscribe } from './subscriptions/pnl';
+import {
+	handlePNLPositionSubscription,
+	handlePNLPositionUnSubscribe
+} from './subscriptions/pnlPosition';
+import client from '../ibrk/client';
 
-export function setupWebSocket(server: Server) {
+export async function setupWebSocket(server: Server) {
 	const wss = new WebSocketServer({ server });
 
-	initAccountUpdates();
+	const accounts = await client.getManagedAccounts();
+	const accountId = accounts[0];
+
+	initAccountUpdates(accountId);
 	initScanner();
 	initOrderUpdates();
-	initPositionsUpdates();
+	initPositionsUpdates(accountId);
 
 	wss.on('connection', (ws) => {
 		ws.on('message', (msg) => {
@@ -51,10 +58,10 @@ export function setupWebSocket(server: Server) {
 					handleHistoricalMarketDataUpdateSubscription(ws, message.data);
 					break;
 				case MessageType.SUBSCRIBE_PNL_POSITION:
-					handlePNLSubscription(ws, message.data.conId, message.data.accountId);
+					handlePNLPositionSubscription(ws, message.data.conId, message.data.accountId);
 					break;
 				case MessageType.UNSUBSCRIBE_PNL_POSITION:
-					handlePNLUnSubscribe(ws, message.data.conId, message.data.accountId);
+					handlePNLPositionUnSubscribe(ws, message.data.conId, message.data.accountId);
 					break;
 				default:
 					console.log('Unknown message type:', message.type);

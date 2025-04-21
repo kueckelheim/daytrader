@@ -6,7 +6,7 @@ import { subscribeToPositionsUpdates } from '../../ibrk/methods/subscribeToPosit
 const subscribedClients = new Set<WebSocket>();
 let latestUpdate: Position[] | null = null;
 
-export function initPositionsUpdates() {
+export function initPositionsUpdates(accountId: string) {
 	console.log('Initializing positions updates...');
 
 	subscribeToPositionsUpdates(
@@ -26,7 +26,8 @@ export function initPositionsUpdates() {
 		},
 		(err) => {
 			console.error('Positions update error:', err);
-		}
+		},
+		accountId
 	);
 }
 

@@ -1,49 +1,50 @@
 import { WebSocket } from 'ws';
-import { MessageType, PNLUpdate } from '../../../src/lib/types/types';
-import subscribeToPNL from '../../ibrk/methods/subscribeToPNL';
+import { AccountUpdateMessage, DailyPNLMessage, MessageType } from '../../../src/lib/types/types';
+import { PnL } from '@stoqey/ib';
+import { subscribeToDailyPNL } from '../../ibrk/methods/subscribeToDailyPNL';
 
-const activePNLSubscriptions = new Map<string, () => void>();
+const clients = new Set<WebSocket>();
+let latestUpdate: PnL | null = null;
 
-export async function handlePNLSubscription(ws: WebSocket, conId: number, accountId: string) {
-	const key = `${ws}_${conId}_${accountId}`;
-	console.log(`Client subscribed to pnl for ${conId}`);
+export function initPNLUpdates(accountId: string) {
+	console.log('Initializing pnl...');
+	subscribeToDailyPNL(
+		(update) => {
+			console.log('Received pnl update:', update);
+			latestUpdate = update;
 
-	try {
-		const unsubscribe = await subscribeToPNL(
-			(update) => {
-				const response: PNLUpdate = {
-					type: MessageType.PNL_UPDATE_POSITION,
-					data: update
-				};
-				ws.send(JSON.stringify(response));
-			},
-			() => {},
-			conId,
-			accountId
-		);
-
-		activePNLSubscriptions.set(key, unsubscribe);
-
-		ws.on('close', () => {
-			console.log(`WebSocket closed for ${conId}. Unsubscribing...`);
-			const fn = activePNLSubscriptions.get(key);
-			if (fn) {
-				fn();
-				activePNLSubscriptions.delete(key);
-			}
-		});
-	} catch (err) {
-		console.error('Error subscribing to pnl:', err);
-	}
+			clients.forEach((ws) => {
+				if (ws.readyState === ws.OPEN) {
+					const response: AccountUpdateMessage = {
+						type: MessageType.ACCOUNT_UPDATE,
+						data: update
+					};
+					ws.send(JSON.stringify(response));
+					console.log('Sent daily pnl to client');
+				}
+			});
+		},
+		(err) => {
+			console.error('Daily PNL update error:', err);
+		},
+		accountId
+	);
 }
 
-export async function handlePNLUnSubscribe(ws: WebSocket, conId: number, accountId: string) {
-	const key = `${ws}_${conId}_${accountId}`;
-	const unsubscribe = activePNLSubscriptions.get(key);
+export function handlePNLSubscription(ws: WebSocket) {
+	clients.add(ws);
+	console.log('Client subscribed to pnl');
 
-	if (unsubscribe) {
-		unsubscribe();
-		activePNLSubscriptions.delete(key);
-		console.log(`Manually unsubscribed from pnl for ${conId}`);
+	if (latestUpdate && ws.readyState === ws.OPEN) {
+		const response: DailyPNLMessage = {
+			type: MessageType.DAILY_PNL,
+			data: latestUpdate
+		};
+		ws.send(JSON.stringify(response));
 	}
+
+	ws.on('close', () => {
+		clients.delete(ws);
+		console.log('Client disconnected from pnl');
+	});
 }

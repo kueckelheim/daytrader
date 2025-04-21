@@ -1,4 +1,13 @@
-import type { Bar, Contract, OpenOrder, PnLSingle, Position } from '@stoqey/ib';
+import type { Bar, Contract, OpenOrder, PnL, PnLSingle, Position } from '@stoqey/ib';
+
+export interface SubscribeDailyPNLMessage {
+	type: MessageType.SUBSCRIBE_DAILY_PNL;
+}
+
+export interface DailyPNLMessage {
+	type: MessageType.DAILY_PNL;
+	data: PnL;
+}
 
 export interface SubscribePositionsMessage {
 	type: MessageType.SUBSRIBE_POSITIONS_UPDATE;
@@ -91,7 +100,9 @@ export enum MessageType {
 	OPEN_ORDERS_UPDATE = 'OPEN_ORDERS_UPDATE',
 	SUBSRIBE_POSITIONS_UPDATE = 'SUBSRIBE_POSITIONS_UPDATE',
 	UNSUBSRIBE_POSITIONS_UPDATE = 'UNSUBSRIBE_POSITIONS_UPDATE',
-	POSITIONS_UPDATE = 'POSITIONS_UPDATE'
+	POSITIONS_UPDATE = 'POSITIONS_UPDATE',
+	SUBSCRIBE_DAILY_PNL = 'SUBSCRIBE_DAILY_PNL',
+	DAILY_PNL = 'DAILY_PNL'
 }
 
 export type WebSocketMessage =
@@ -109,7 +120,9 @@ export type WebSocketMessage =
 	| UnsubscribePositionsMessage
 	| SubscribePNL
 	| UnsubscribePNL
-	| PNLUpdate;
+	| PNLUpdate
+	| DailyPNLMessage
+	| SubscribeDailyPNLMessage;
 
 export type DataPoint = {
 	x: number | undefined; // timestamp

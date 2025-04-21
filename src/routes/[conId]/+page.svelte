@@ -15,7 +15,7 @@
 	import calculateMACD from '$lib/utils/calculateMACD';
 	import calculateVWAP from '$lib/utils/calculateVWAP';
 	import type { ContractDetails } from '@stoqey/ib';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	let baseData: DataPoint[] = $state([]);
 	let contractDetails: ContractDetails | undefined = $state(undefined);
@@ -61,7 +61,6 @@
 			$websocket?.addEventListener('message', (event) => {
 				const message: WebSocketMessage = JSON.parse(event.data);
 				if (message.type === MessageType.LASTEST_BAR) {
-					console.log('new bar');
 					const existingBar = baseData.find((bar) => bar.x === parseInt(message.data.time!) * 1000);
 					const formatted: DataPoint = {
 						h: message.data.high,
@@ -81,9 +80,14 @@
 		}
 	};
 
+	const requestPositionsUpdates = () => {
+		$websocket?.send(JSON.stringify({ type: MessageType.SUBSRIBE_POSITIONS_UPDATE }));
+	};
+
 	$effect(() => {
 		if ($websocket && contractDetails && baseData.length && !subsribed) {
 			requestLatestBarUpdates();
+			requestPositionsUpdates();
 		}
 	});
 
@@ -99,11 +103,15 @@
 		baseData = body.data;
 		contractDetails = body.contractDetails;
 	});
+
+	onDestroy(() => {
+		$websocket?.send(JSON.stringify({ type: MessageType.UNSUBSRIBE_POSITIONS_UPDATE }));
+	});
 </script>
 
 {#if baseData.length && contractDetails}
 	<div
-		class={`grid ${limitPrice ? 'grid-cols-3' : 'grid-cols-2'} h-full max-h-screen w-full grow gap-12 overflow-y-auto`}
+		class={`grid ${limitPrice || position ? 'grid-cols-3' : 'grid-cols-2'} h-full max-h-screen w-full grow gap-12 overflow-y-auto`}
 	>
 		<div class="col-span-2 max-h-screen w-full">
 			<div
@@ -148,7 +156,7 @@
 				/>
 			</div>
 		</div>
-		{#if limitPrice}
+		{#if limitPrice || position}
 			<div class="flex w-full max-w-screen-sm flex-col space-y-8 p-8">
 				<div class="flex w-full justify-between">
 					<button
@@ -184,6 +192,7 @@
 							contract={contractDetails?.contract}
 							currentPrice={currentData[currentData.length - 1].c!}
 							{position}
+							{limitPrice}
 						></Sell>
 					</div>
 				{/if}

@@ -1,16 +1,14 @@
 <script lang="ts">
 	import { account } from '$lib/stores/account';
-	import { websocket } from '$lib/stores/websocket';
-	import { MessageType } from '$lib/types/types';
 	import type { Contract, Position } from '@stoqey/ib';
-	import { onDestroy } from 'svelte';
 
 	interface Props {
 		position: Position;
 		currentPrice: number;
 		contract: Contract;
+		limitPrice: number | undefined;
 	}
-	let { position, currentPrice, contract }: Props = $props();
+	let { position, currentPrice, contract, limitPrice }: Props = $props();
 
 	let orderType = $state('MKT');
 	let nShares: number = $state(position.pos);
@@ -33,7 +31,8 @@
 				conId: contract.conId,
 				accountId: $account.accountId,
 				exchange: contract.exchange,
-				orderType
+				orderType,
+				limitPrice
 			})
 		});
 
@@ -43,20 +42,6 @@
 
 		console.log(await response.json());
 	};
-
-	const requestPositionsUpdates = () => {
-		$websocket?.send(JSON.stringify({ type: MessageType.SUBSRIBE_POSITIONS_UPDATE }));
-	};
-
-	$effect(() => {
-		if ($websocket) {
-			requestPositionsUpdates();
-		}
-	});
-
-	onDestroy(() => {
-		$websocket?.send(JSON.stringify({ type: MessageType.UNSUBSRIBE_POSITIONS_UPDATE }));
-	});
 </script>
 
 <form onsubmit={handleSubmit} class="inline-flex flex-col">
@@ -96,19 +81,19 @@
 			{percent?.toFixed(2)}%
 		</div>
 		<fieldset class="flex space-x-2 text-xs font-semibold">
-			<!-- <label
-			aria-label="Limit Order"
-			class={`flex w-8 justify-center py-1 ${orderType === 'LMT' ? 'bg-indigo-500' : 'cursor-pointer bg-gray-700/80'}`}
-		>
-			<input
-				type="radio"
-				name="order-type"
-				value={'LMT'}
-				bind:group={orderType}
-				class="sr-only"
-			/>
-			<span>LMT</span>
-		</label> -->
+			<label
+				aria-label="Limit Order"
+				class={`flex w-8 justify-center py-1 ${orderType === 'LMT' ? 'bg-indigo-500' : 'cursor-pointer bg-gray-700/80'}`}
+			>
+				<input
+					type="radio"
+					name="order-type"
+					value={'LMT'}
+					bind:group={orderType}
+					class="sr-only"
+				/>
+				<span>LMT</span>
+			</label>
 			<label
 				aria-label="Limit Order"
 				class={`flex w-8 justify-center py-1 ${orderType === 'MKT' ? 'bg-indigo-500' : 'cursor-pointer bg-gray-700/80'}`}
@@ -131,6 +116,22 @@
 		</div>
 	</dd>
 	<div class="mt-4 flex items-center space-x-4">
+		{#if orderType === 'LMT'}
+			<div class="w-full">
+				<label for="entry-price" class="block text-sm/6 font-medium">Limit Price</label>
+				<div class="grid grid-cols-1">
+					<input
+						type="number"
+						name="entry-price"
+						step="any"
+						id="entry-price"
+						disabled
+						value={limitPrice}
+						class="col-start-1 row-start-1 block w-auto min-w-0 px-2 py-1.5 font-mono text-base text-gray-50 outline-1 -outline-offset-1 outline-gray-700 placeholder:text-gray-400 focus:outline-1 focus:-outline-offset-1 focus:outline-indigo-300 sm:text-sm/6"
+					/>
+				</div>
+			</div>
+		{/if}
 		<div class="w-full">
 			<div class="text-sm/6 font-medium">nShares</div>
 			<input

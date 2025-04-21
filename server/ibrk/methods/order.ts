@@ -27,6 +27,7 @@ export const place = async ({
 		totalQuantity: parseInt(nShares),
 		account: accountId,
 		clientId: 0,
+		outsideRth: true,
 		transmit: true
 	};
 
@@ -69,7 +70,8 @@ export const sell = async ({
 		totalQuantity: parseInt(nShares),
 		account: accountId,
 		clientId: 0,
-		transmit: true
+		transmit: true,
+		outsideRth: true
 	};
 
 	console.log('placing new sell order', order);

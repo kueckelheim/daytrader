@@ -8,7 +8,7 @@ const updateHandler = (update: OpenOrdersUpdate, onUpdate: (update: any) => void
 			update.all.filter(
 				(order) =>
 					order.orderState.status !== OrderStatus.Filled &&
-					order.orderState.status !== OrderStatus.ApiCancelled
+					order.orderState.status !== OrderStatus.Cancelled
 			)
 		);
 	}

@@ -41,3 +41,8 @@ export const place = async ({
 
 	return orderId;
 };
+
+export const cancel = async (orderId: string) => {
+	console.log('cancel order', orderId);
+	await client.cancelOrder(Number(orderId));
+};

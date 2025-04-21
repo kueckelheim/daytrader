@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { place } from '../ibrk/methods/order';
+import { cancel, place } from '../ibrk/methods/order';
 
 export const placeOrder = async (req: Request, res: Response): Promise<Response> => {
 	try {
@@ -31,5 +31,22 @@ export const placeOrder = async (req: Request, res: Response): Promise<Response>
 	} catch (err) {
 		console.error('[order] error:', err);
 		return res.status(500).json({ error: 'Order placement failed' });
+	}
+};
+
+export const cancelOrder = async (req: Request, res: Response): Promise<Response> => {
+	try {
+		const orderId = req.query.orderId as string;
+
+		if (!orderId) {
+			return res.status(400).json({ error: 'Missing orderId' });
+		}
+
+		await cancel(orderId);
+
+		return res.status(200).json();
+	} catch (err) {
+		console.error('[order] error:', err);
+		return res.status(500).json({ error: 'Order cancelling failed' });
 	}
 };

@@ -192,7 +192,7 @@
 </form>
 
 {#if contractOpenOrders.length}
-	<h3 class="mt-4 font-semibold">Open orders:</h3>
+	<h3 class="mt-8 font-semibold text-gray-400">Open orders:</h3>
 
 	<table class="w-full overflow-hidden text-left whitespace-nowrap">
 		<colgroup>
@@ -204,7 +204,7 @@
 			<col class="lg:w-1/12" />
 			<col class="lg:w-2/12" />
 		</colgroup>
-		<thead class="border-b border-white/10 text-xs/6 text-white">
+		<thead class="border-b border-white/10 text-xs/6 text-gray-200">
 			<tr>
 				<th scope="col" class="px-0.5 py-2 text-xs/6 font-semibold">Status</th>
 				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Symbol</th>

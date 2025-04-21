@@ -187,6 +187,6 @@
 	<span>C: {tooltipData?.c?.toFixed(2) || ''}</span>
 	<span>H: {tooltipData?.h?.toFixed(2) || ''}</span>
 </div>
-<div class="relative flex-grow overflow-hidden h-full">
+<div class="relative flex-grow overflow-hidden w-full">
 	<canvas class="absolute inset-0 h-full w-full" bind:this={canvas}></canvas>
 </div>

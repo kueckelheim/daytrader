@@ -158,7 +158,7 @@ export const getChartConfig = ({
 	options: {
 		animation: false,
 		responsive: true,
-		maintainAspectRatio: true,
+		maintainAspectRatio: false,
 		plugins: {
 			tooltip: {
 				enabled: false, // Disable the default tooltip

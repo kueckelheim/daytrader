@@ -10,17 +10,15 @@ export function initPNLUpdates(accountId: string) {
 	console.log('Initializing pnl...');
 	subscribeToDailyPNL(
 		(update) => {
-			console.log('Received pnl update:', update);
 			latestUpdate = update;
 
 			clients.forEach((ws) => {
 				if (ws.readyState === ws.OPEN) {
-					const response: AccountUpdateMessage = {
-						type: MessageType.ACCOUNT_UPDATE,
+					const response: DailyPNLMessage = {
+						type: MessageType.DAILY_PNL,
 						data: update
 					};
 					ws.send(JSON.stringify(response));
-					console.log('Sent daily pnl to client');
 				}
 			});
 		},

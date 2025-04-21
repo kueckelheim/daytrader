@@ -1,4 +1,8 @@
 <script lang="ts">
+	import Positions from '$lib/component/Positions.svelte';
+	import { account, pnl } from '$lib/stores/account';
+	import { websocket } from '$lib/stores/websocket';
+	import { MessageType } from '$lib/types/types';
 	import type { Contract } from '@stoqey/ib';
 	import { onMount, tick } from 'svelte';
 
@@ -76,13 +80,28 @@
 		await tick();
 		container.querySelector('input')?.focus();
 	});
+
+	const requestPositionsUpdates = () => {
+		$websocket?.send(JSON.stringify({ type: MessageType.SUBSRIBE_POSITIONS_UPDATE }));
+	};
+
+	const requestDailyPNL = () => {
+		$websocket?.send(JSON.stringify({ type: MessageType.SUBSCRIBE_DAILY_PNL }));
+	};
+
+	$effect(() => {
+		if ($websocket) {
+			requestPositionsUpdates();
+			requestDailyPNL();
+		}
+	});
 </script>
 
 <div
 	onkeydown={handleKeyDown}
 	bind:this={container}
 	role="presentation"
-	class="fixed inset-0 h-full w-full divide-y divide-gray-500/20 overflow-auto rounded-b-xl bg-gray-900 shadow-2xl"
+	class="fixed inset-0 flex h-full w-full flex-col divide-y divide-gray-500/20 overflow-auto rounded-b-xl bg-gray-900 shadow-2xl"
 >
 	<form onsubmit={handleSubmit} class="grid grid-cols-1">
 		<!-- svelte-ignore a11y_autofocus -->
@@ -226,4 +245,44 @@
 			{/each}
 		</ul>
 	{/if}
+	<div class="bg-gray-900">
+		<div class="w-full">
+			<div class="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
+				<div class="bg-gray-900/70 px-4 py-24 sm:px-6 lg:px-8">
+					<p class="text-sm/6 font-medium text-gray-400">Funds EUR</p>
+					<p class="mt-2 flex items-baseline gap-x-2">
+						<span class="text-4xl font-semibold tracking-tight text-white"
+							>{$account.availableFundsEUR?.toFixed(2)}</span
+						>
+					</p>
+				</div>
+				<div class="bg-gray-900/70 px-4 py-24 sm:px-6 lg:px-8">
+					<p class="text-sm/6 font-medium text-gray-400">Funds USD</p>
+					<p class="mt-2 flex items-baseline gap-x-2">
+						<span class="text-4xl font-semibold tracking-tight text-white"
+							>{$account.availableFundsUSD?.toFixed(2)}</span
+						>
+					</p>
+				</div>
+				<div class="bg-gray-900/70 px-4 py-24 sm:px-6 lg:px-8">
+					<p class="text-sm/6 font-medium text-gray-400">Daily Realized PNL</p>
+					<p class="mt-2 flex items-baseline gap-x-2">
+						<span class="text-4xl font-semibold tracking-tight text-white"
+							>{$pnl.realizedPnL?.toFixed(2)}</span
+						>
+					</p>
+				</div>
+				<div class="bg-gray-900/70 px-4 py-24 sm:px-6 lg:px-8">
+					<p class="text-sm/6 font-medium text-gray-400">Daily Unrealized PNL</p>
+					<p class="mt-2 flex items-baseline gap-x-2">
+						<span class="text-4xl font-semibold tracking-tight text-white"
+							>{$pnl.unrealizedPnL?.toFixed(2)}</span
+						>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<Positions />
 </div>

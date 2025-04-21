@@ -19,6 +19,7 @@ import {
 	handlePNLPositionUnSubscribe
 } from './subscriptions/pnlPosition';
 import client from '../ibrk/client';
+import { handlePNLSubscription, initPNLUpdates } from './subscriptions/pnl';
 
 export async function setupWebSocket(server: Server) {
 	const wss = new WebSocketServer({ server });
@@ -30,6 +31,7 @@ export async function setupWebSocket(server: Server) {
 	initScanner();
 	initOrderUpdates();
 	initPositionsUpdates(accountId);
+	initPNLUpdates(accountId);
 
 	wss.on('connection', (ws) => {
 		ws.on('message', (msg) => {
@@ -62,6 +64,9 @@ export async function setupWebSocket(server: Server) {
 					break;
 				case MessageType.UNSUBSCRIBE_PNL_POSITION:
 					handlePNLPositionUnSubscribe(ws, message.data.conId, message.data.accountId);
+					break;
+				case MessageType.SUBSCRIBE_DAILY_PNL:
+					handlePNLSubscription(ws);
 					break;
 				default:
 					console.log('Unknown message type:', message.type);

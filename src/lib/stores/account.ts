@@ -1,5 +1,5 @@
 import type { Account } from '$lib/types/types';
-import type { OpenOrder, Position } from '@stoqey/ib';
+import type { OpenOrder, PnL, Position } from '@stoqey/ib';
 import { writable } from 'svelte/store';
 
 export const account = writable<Account>({
@@ -9,3 +9,8 @@ export const account = writable<Account>({
 });
 export const positions = writable<Position[]>([]);
 export const openOrders = writable<OpenOrder[]>([]);
+export const pnl = writable<PnL>({
+	dailyPnL: 0,
+	realizedPnL: 0,
+	unrealizedPnL: 0
+});

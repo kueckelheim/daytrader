@@ -14,6 +14,7 @@ import {
 	handleUnsubcribePositions,
 	initPositionsUpdates
 } from './subscriptions/positionsUpdate';
+import { handlePNLSubscription, handlePNLUnSubscribe } from './subscriptions/pnl';
 
 export function setupWebSocket(server: Server) {
 	const wss = new WebSocketServer({ server });
@@ -48,6 +49,12 @@ export function setupWebSocket(server: Server) {
 					break;
 				case MessageType.SUBSCRIBE_LASTEST_BAR:
 					handleHistoricalMarketDataUpdateSubscription(ws, message.data);
+					break;
+				case MessageType.SUBSCRIBE_PNL_POSITION:
+					handlePNLSubscription(ws, message.data.conId, message.data.accountId);
+					break;
+				case MessageType.UNSUBSCRIBE_PNL_POSITION:
+					handlePNLUnSubscribe(ws, message.data.conId, message.data.accountId);
 					break;
 				default:
 					console.log('Unknown message type:', message.type);

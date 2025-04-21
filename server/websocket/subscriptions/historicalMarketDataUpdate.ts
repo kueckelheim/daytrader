@@ -16,7 +16,6 @@ export async function handleHistoricalMarketDataUpdateSubscription(
 		// Subscribe to historical data updates and store the unsubscribe function
 		unsubscribe = await subscribeToHistoricalDataUpdates(
 			(update) => {
-				console.log(`Received latest bar for ${contract.symbol}`);
 				const response: LatestBarMessage = {
 					type: MessageType.LASTEST_BAR,
 					data: update

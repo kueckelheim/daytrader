@@ -16,7 +16,6 @@ export const connectWebSocket = (url: string) => {
 	};
 
 	ws.onmessage = (event) => {
-		console.log('New message');
 		const message: WebSocketMessage = JSON.parse(event.data);
 		handleMessage(message);
 	};
@@ -32,7 +31,6 @@ export const connectWebSocket = (url: string) => {
 
 // Handle incoming messages based on type
 const handleMessage = (message: WebSocketMessage) => {
-	console.log(message);
 	switch (message.type) {
 		case MessageType.ACCOUNT_UPDATE:
 			console.log('Received account account:', message);

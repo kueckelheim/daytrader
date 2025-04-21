@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { account } from '$lib/stores/account';
+	import { websocket } from '$lib/stores/websocket';
+	import { MessageType, type WebSocketMessage } from '$lib/types/types';
 	import type { Contract, Position } from '@stoqey/ib';
+	import { onDestroy } from 'svelte';
 
 	interface Props {
 		position: Position;
@@ -42,6 +45,49 @@
 
 		console.log(await response.json());
 	};
+
+	let subsribed = $state(false);
+	const requestPNL = () => {
+		if ($websocket) {
+			$websocket.send(
+				JSON.stringify({
+					type: MessageType.SUBSCRIBE_PNL_POSITION,
+					data: { conId: position.contract.conId, accountId: $account.accountId }
+				})
+			);
+			subsribed = true;
+			$websocket?.addEventListener('message', (event) => {
+				const message: WebSocketMessage = JSON.parse(event.data);
+				if (message.type === MessageType.PNL_UPDATE_POSITION) {
+					if (message.data.unrealizedPnL) {
+						pnl = message.data.unrealizedPnL;
+					}
+				}
+			});
+		}
+	};
+
+	let conId: number | undefined;
+	let accountId: string | undefined;
+	$effect(() => {
+		if ($websocket && position?.contract?.conId && $account.accountId && !subsribed) {
+			console.log('requestPNL');
+			conId = position.contract.conId;
+			accountId = $account.accountId;
+			requestPNL();
+		}
+	});
+
+	onDestroy(() => {
+		if (conId && accountId) {
+			$websocket?.send(
+				JSON.stringify({
+					type: MessageType.UNSUBSCRIBE_PNL_POSITION,
+					data: { accountId, conId }
+				})
+			);
+		}
+	});
 </script>
 
 <form onsubmit={handleSubmit} class="inline-flex flex-col">
@@ -111,7 +157,7 @@
 	</div>
 	<dd class="mt-2 flex w-full items-baseline justify-between space-x-2 md:block lg:flex">
 		<div class="text-white-600 flex items-baseline text-base font-semibold">
-			{pnl}
+			{pnl?.toFixed(2)}
 			<span class="ml-2 text-sm font-medium text-gray-500">{position.pos} shares</span>
 		</div>
 	</dd>

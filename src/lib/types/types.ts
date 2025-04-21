@@ -1,4 +1,4 @@
-import type { Bar, Contract, OpenOrder, Position } from '@stoqey/ib';
+import type { Bar, Contract, OpenOrder, PnLSingle, Position } from '@stoqey/ib';
 
 export interface SubscribePositionsMessage {
 	type: MessageType.SUBSRIBE_POSITIONS_UPDATE;
@@ -54,7 +54,31 @@ export interface ScanUpdateMessage {
 	data: ScanMatch[];
 }
 
+export interface SubscribePNL {
+	type: MessageType.SUBSCRIBE_PNL_POSITION;
+	data: {
+		accountId: string;
+		conId: number;
+	};
+}
+
+export interface UnsubscribePNL {
+	type: MessageType.UNSUBSCRIBE_PNL_POSITION;
+	data: {
+		accountId: string;
+		conId: number;
+	};
+}
+
+export interface PNLUpdate {
+	type: MessageType.PNL_UPDATE_POSITION;
+	data: PnLSingle;
+}
+
 export enum MessageType {
+	UNSUBSCRIBE_PNL_POSITION = 'UNSUBSCRIBE_PNL_POSITION',
+	SUBSCRIBE_PNL_POSITION = 'SUBSCRIBE_PNL_POSITION',
+	PNL_UPDATE_POSITION = 'PNL_UPDATE_POSITION',
 	SUBSCRIBE_ACCOUNT = 'SUBSCRIBE_ACCOUNT',
 	SUBSCRIBE_SCAN = 'SUBSCRIBE_SCAN',
 	ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
@@ -82,7 +106,10 @@ export type WebSocketMessage =
 	| UnsubscribeOpenOrdersMessage
 	| SubscribePositionsMessage
 	| PositionsUpdateMessage
-	| UnsubscribePositionsMessage;
+	| UnsubscribePositionsMessage
+	| SubscribePNL
+	| UnsubscribePNL
+	| PNLUpdate;
 
 export type DataPoint = {
 	x: number | undefined; // timestamp

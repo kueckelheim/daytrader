@@ -27,7 +27,8 @@
 		</div>
 		{#each $matches as match}
 			<a
-				href={`/${match.conId}/${match.exchange}`}
+				href={`/${match.conId}`}
+				target="_blank"
 				class="grid w-full min-w-full grid-cols-5 border-b border-gray-700 hover:bg-gray-800"
 			>
 				<div class="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-white sm:pl-0">

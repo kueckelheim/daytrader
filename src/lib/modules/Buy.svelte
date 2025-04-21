@@ -1,6 +1,10 @@
 <script lang="ts">
-	import { account } from '$lib/stores/account';
-	import type { Contract } from '@stoqey/ib';
+	import { account, openOrders } from '$lib/stores/account';
+	import { websocket } from '$lib/stores/websocket';
+	import { MessageType } from '$lib/types/types';
+	import cancelOrder from '$lib/utils/cancelOrder';
+	import type { Contract, OpenOrder } from '@stoqey/ib';
+	import { onDestroy } from 'svelte';
 
 	interface Props {
 		limitPrice: number | undefined;
@@ -13,8 +17,13 @@
 	let balance = $derived($account.availableFundsEUR || 0);
 	let orderType: 'LMT' | 'MKT' = $state('LMT');
 
-	let rewardRatio: number | undefined = $state();
 	let nShares: number | undefined = $state();
+
+	let contractOpenOrders: OpenOrder[] = $derived.by(() => {
+		if (!$openOrders.length) return [];
+		return $openOrders.filter((order) => order.contract.conId === contract.conId);
+	});
+
 	// let nShares = $derived.by(() => {
 	// 	if (!stopLoss) return null;
 	// 	const riskPerShare = currentPrice - stopLoss;
@@ -75,8 +84,25 @@
 			throw new Error(`HTTP error! Status: ${response.status}`);
 		}
 
-		console.log(await response.json());
+		const data = await response.json();
+		// orderIds.push(data.orderId);
 	};
+
+	const requestOpenOrderUpdates = () => {
+		$websocket?.send(JSON.stringify({ type: MessageType.SUBSCRIBE_OPEN_ORDERS }));
+	};
+
+	$effect(() => {
+		if ($websocket) {
+			requestOpenOrderUpdates();
+		}
+	});
+
+	onDestroy(() => {
+		$websocket?.send(JSON.stringify({ type: MessageType.UNSUBSCRIBE_OPEN_ORDERS }));
+	});
+
+	$effect(() => console.log($openOrders));
 </script>
 
 <form onsubmit={handleSubmit} class="inline-flex flex-col">
@@ -164,3 +190,73 @@
 		{:else}{/if}
 	</div>
 </form>
+
+{#if contractOpenOrders.length}
+	<h3 class="mt-4 font-semibold">Open orders:</h3>
+
+	<table class="w-full overflow-hidden text-left whitespace-nowrap">
+		<colgroup>
+			<col class="w-full sm:w-4/12" />
+			<col class="lg:w-2/12" />
+			<col class="lg:w-1/12" />
+			<col class="lg:w-1/12" />
+			<col class="lg:w-1/12" />
+			<col class="lg:w-1/12" />
+			<col class="lg:w-2/12" />
+		</colgroup>
+		<thead class="border-b border-white/10 text-xs/6 text-white">
+			<tr>
+				<th scope="col" class="px-0.5 py-2 text-xs/6 font-semibold">Status</th>
+				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Symbol</th>
+				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Action</th>
+				<th scope="col" class="hidden px-0.5 py-2 text-xs/6 font-semibold sm:table-cell">Type</th>
+				<th scope="col" class="px-0.5 py-2 text-right text-xs/6 font-semibold sm:text-left">Qnt</th>
+				<th scope="col" class="hidden px-0.5 py-2 font-semibold md:table-cell">Limit</th>
+				<th scope="col" class="hidden px-0.5 py-2 text-right font-semibold sm:table-cell"></th>
+			</tr>
+		</thead>
+		<tbody class="divide-y divide-white/5">
+			{#each contractOpenOrders as order}
+				<tr>
+					<td class="px-0.5 py-2">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.orderState.status}</div>
+						</div>
+					</td>
+					<td class="hidden px-0.5 py-2 sm:table-cell">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.contract.symbol}</div>
+						</div>
+					</td>
+					<td class="hidden px-0.5 py-2 sm:table-cell">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.order.action}</div>
+						</div>
+					</td>
+					<td class="px-0.5 py-2 text-xs/6">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.order.orderType}</div>
+						</div>
+					</td>
+					<td class="px-0.5 py-2 text-xs/6">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.order.totalQuantity}</div>
+						</div>
+					</td>
+					<td class="px-0.5 py-2 text-xs/6">
+						<div class="flex gap-x-3">
+							<div class="font-mono text-xs/6 text-gray-400">{order.order.lmtPrice}</div>
+						</div>
+					</td>
+					<td class="hidden px-0.5 py-2 text-right text-xs/6 text-gray-400 sm:table-cell">
+						<button
+							type="button"
+							onclick={() => cancelOrder(order.orderId)}
+							class="cursor-pointer text-red-500 hover:text-red-400">Cancel</button
+						>
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+{/if}

@@ -4,12 +4,14 @@ import { handleAccountSubscription, initAccountUpdates } from './subscriptions/a
 import { MessageType, WebSocketMessage } from '../../src/lib/types/types';
 import { handleScanSubscription, initScanner } from './subscriptions/scanner';
 import { handleHistoricalMarketDataUpdateSubscription } from './subscriptions/historicalMarketDataUpdate';
+import { handleOpenOrderUpdate, handleUnsubcribeOpenOrders, initOrderUpdates } from './subscriptions/ordersUpdate';
 
 export function setupWebSocket(server: Server) {
 	const wss = new WebSocketServer({ server });
 
 	initAccountUpdates();
 	initScanner();
+	initOrderUpdates();
 
 	wss.on('connection', (ws) => {
 		ws.on('message', (msg) => {
@@ -21,6 +23,12 @@ export function setupWebSocket(server: Server) {
 					break;
 				case MessageType.SUBSCRIBE_SCAN:
 					handleScanSubscription(ws);
+					break;
+				case MessageType.SUBSCRIBE_OPEN_ORDERS:
+					handleOpenOrderUpdate(ws);
+					break;
+				case MessageType.UNSUBSCRIBE_OPEN_ORDERS:
+					handleUnsubcribeOpenOrders(ws);
 					break;
 				case MessageType.SUBSCRIBE_LASTEST_BAR:
 					handleHistoricalMarketDataUpdateSubscription(ws, message.data);

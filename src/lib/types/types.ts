@@ -1,4 +1,17 @@
-import type { Bar, Contract } from '@stoqey/ib';
+import type { Bar, Contract, OpenOrder } from '@stoqey/ib';
+
+export interface SubscribeOpenOrdersMessage {
+	type: MessageType.SUBSCRIBE_OPEN_ORDERS;
+}
+
+export interface UnsubscribeOpenOrdersMessage {
+	type: MessageType.UNSUBSCRIBE_OPEN_ORDERS;
+}
+
+export interface OpenOrdersUpdateMessage {
+	type: MessageType.OPEN_ORDERS_UPDATE;
+	data: OpenOrder[];
+}
 
 export interface LatestBarMessage {
 	type: MessageType.LASTEST_BAR;
@@ -35,7 +48,10 @@ export enum MessageType {
 	SCAN_UPDATE = 'SCAN_UPDATE',
 	POSITIONS = 'POSITIONS',
 	LASTEST_BAR = 'LASTEST_BAR',
-	SUBSCRIBE_LASTEST_BAR = 'SUBSCRIBE_LASTEST_BAR'
+	SUBSCRIBE_LASTEST_BAR = 'SUBSCRIBE_LASTEST_BAR',
+	SUBSCRIBE_OPEN_ORDERS = 'SUBSCRIBE_OPEN_ORDERS',
+	UNSUBSCRIBE_OPEN_ORDERS = 'UNSUBSCRIBE_OPEN_ORDERS',
+	OPEN_ORDERS_UPDATE = 'OPEN_ORDERS_UPDATE'
 }
 
 export type WebSocketMessage =
@@ -44,7 +60,10 @@ export type WebSocketMessage =
 	| SubscribeScanner
 	| ScanUpdateMessage
 	| LatestBarMessage
-	| SubscribeLastestBarMessage;
+	| SubscribeLastestBarMessage
+	| OpenOrdersUpdateMessage
+	| SubscribeOpenOrdersMessage
+	| UnsubscribeOpenOrdersMessage;
 
 export type DataPoint = {
 	x: number | undefined; // timestamp

@@ -57,9 +57,10 @@
 				JSON.stringify({ type: MessageType.SUBSCRIBE_LASTEST_BAR, data: contractDetails?.contract })
 			);
 			subsribed = true;
-			$websocket.onmessage = (event) => {
+			$websocket?.addEventListener('message', (event) => {
 				const message: WebSocketMessage = JSON.parse(event.data);
 				if (message.type === MessageType.LASTEST_BAR) {
+					console.log('new bar');
 					const existingBar = baseData.find((bar) => bar.x === parseInt(message.data.time!) * 1000);
 					const formatted: DataPoint = {
 						h: message.data.high,
@@ -75,7 +76,7 @@
 						baseData = [...baseData, formatted];
 					}
 				}
-			};
+			});
 		}
 	};
 
@@ -100,52 +101,57 @@
 </script>
 
 {#if baseData.length && contractDetails}
-	<div class={`grid ${limitPrice ? 'grid-cols-3' : 'grid-cols-2'} w-full gap-12 max-h-screen h-full`}>
-		<div
-			class="col-span-2 flex max-h-full w-full flex-col border border-white/15 bg-gray-800 text-white p-4"
-		>
-			<div class="flex items-center space-x-2">
-				<h2 class="mt-2 mb-2 text-2xl font-semibold">{contractDetails.contract.symbol}</h2>
-				{#if currentPrice && currentPricePercentChangeRange}
-					<div
-						class={`rounded-sm px-1 py-0.5 shadow-lg ${currentPricePercentChangeRange > 0 ? 'bg-green-500' : 'bg-red-500'}`}
-					>
-						{currentPrice.toFixed(2)}
-						<span class="ml-1">({currentPricePercentChangeRange.toFixed(2)}%)</span>
-					</div>
-				{/if}
-			</div>
-			<div class="flex justify-end">
-				<fieldset onchange={handleRangeChange} aria-label="Choose a range" class="flex space-x-2">
-					{#each Object.entries(CHART_RANGE) as [label, value]}
-						<label
-							class={`flex cursor-pointer items-center justify-center rounded-md text-sm font-semibold ${range === value ? 'text-gray-200 underline' : 'text-gray-500'} focus:outline-hidden`}
+	<div class={`grid ${limitPrice ? 'grid-cols-3' : 'grid-cols-2'} w-full gap-12 max-h-screen h-full grow overflow-y-auto`}>
+		<div class="col-span-2 w-full max-h-screen">
+			<div class="flex flex-col border border-white/15 bg-gray-800 p-4 text-white max-h-screen h-full grow">
+				<div class="flex items-center space-x-2">
+					<h2 class="mt-2 mb-2 text-2xl font-semibold">{contractDetails.contract.symbol}</h2>
+					{#if currentPrice && currentPricePercentChangeRange}
+						<div
+							class={`rounded-sm px-1 py-0.5 shadow-lg ${currentPricePercentChangeRange > 0 ? 'bg-green-500' : 'bg-red-500'}`}
 						>
-							<input type="radio" name="memory-option" {value} class="sr-only" />
-							<span>{label}</span>
-						</label>
-					{/each}
-				</fieldset>
+							{currentPrice.toFixed(2)}
+							<span class="ml-1">({currentPricePercentChangeRange.toFixed(2)}%)</span>
+						</div>
+					{/if}
+				</div>
+				<div class="flex justify-end">
+					<fieldset onchange={handleRangeChange} aria-label="Choose a range" class="flex space-x-2">
+						{#each Object.entries(CHART_RANGE) as [label, value]}
+							<label
+								class={`flex cursor-pointer items-center justify-center rounded-md text-sm font-semibold ${range === value ? 'text-gray-200 underline' : 'text-gray-500'} focus:outline-hidden`}
+							>
+								<input type="radio" name="memory-option" {value} class="sr-only" />
+								<span>{label}</span>
+							</label>
+						{/each}
+					</fieldset>
+				</div>
+				<Chart
+					data={baseData.slice(-range)}
+					ema9={calculateEma(baseData, 9)?.slice(-range)}
+					ema20={calculateEma(baseData, 20)?.slice(-range)}
+					ema200={calculateEma(baseData, 200)?.slice(-range)}
+					vwap={calculateVWAP(baseData)?.slice(-range)}
+					macdLine={macd?.macdLine.slice(-range)}
+					signalLine={macd?.signalLine?.slice(-range)}
+					positions={[]}
+					{stopLoss}
+					{limitPrice}
+					{target}
+					onClick={handleClick}
+				/>
 			</div>
-			<Chart
-				data={baseData.slice(-range)}
-				ema9={calculateEma(baseData, 9)?.slice(-range)}
-				ema20={calculateEma(baseData, 20)?.slice(-range)}
-				ema200={calculateEma(baseData, 200)?.slice(-range)}
-				vwap={calculateVWAP(baseData)?.slice(-range)}
-				macdLine={macd?.macdLine.slice(-range)}
-				signalLine={macd?.signalLine?.slice(-range)}
-				positions={[]}
-				{stopLoss}
-				{limitPrice}
-				{target}
-				onClick={handleClick}
-			/>
 		</div>
 		{#if limitPrice}
 			<div class="flex w-full max-w-screen-sm flex-col space-y-8 p-8">
 				<div class="flex w-full justify-between">
-					<button type="button" aria-label="close" class="cursor-pointer hover:text-gray-300 text-gray-500" onclick={() => (limitPrice = undefined)}>
+					<button
+						type="button"
+						aria-label="close"
+						class="cursor-pointer text-gray-500 hover:text-gray-300"
+						onclick={() => (limitPrice = undefined)}
+					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"

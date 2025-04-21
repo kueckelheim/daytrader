@@ -3,10 +3,9 @@ import type { OpenOrder, Position } from '@stoqey/ib';
 import { writable } from 'svelte/store';
 
 export const account = writable<Account>({
-	availableFunds: null,
+	availableFundsEUR: null,
 	availableFundsUSD: null,
-	accountId: null,
-	clientId: null
+	accountId: null
 });
 export const positions = writable<Position[]>([]);
-export const orders = writable<OpenOrder[]>([]);
+export const openOrders = writable<OpenOrder[]>([]);

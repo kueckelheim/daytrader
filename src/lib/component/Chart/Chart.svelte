@@ -167,7 +167,7 @@
 	});
 </script>
 
-<div class="flex space-x-2 text-sm text-gray-300">
+<div class="flex shrink-0 space-x-2 text-sm text-gray-300">
 	<span
 		>{tooltipData?.x
 			? new Date(tooltipData?.x).toLocaleString('en-GB', {
@@ -180,11 +180,13 @@
 			: ' '}</span
 	>
 </div>
-<div class="flex space-x-2 text-sm text-gray-300">
+<div class="flex shrink-0 space-x-2 text-sm text-gray-300">
 	<span>V: {tooltipData?.v?.toFixed(0) || ' '}</span>
 	<span>L: {tooltipData?.l?.toFixed(2) || ''}</span>
 	<span>O: {tooltipData?.o?.toFixed(2) || ''}</span>
 	<span>C: {tooltipData?.c?.toFixed(2) || ''}</span>
 	<span>H: {tooltipData?.h?.toFixed(2) || ''}</span>
 </div>
-<canvas class="flex max-h-full w-[4000px] flex-shrink-0 grow" bind:this={canvas}></canvas>
+<div class="relative flex-grow overflow-hidden h-full">
+	<canvas class="absolute inset-0 h-full w-full" bind:this={canvas}></canvas>
+</div>

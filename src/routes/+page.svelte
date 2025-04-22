@@ -101,7 +101,7 @@
 	onkeydown={handleKeyDown}
 	bind:this={container}
 	role="presentation"
-	class="fixed inset-0 flex h-full w-full flex-col divide-y divide-gray-500/20 overflow-auto rounded-b-xl bg-gray-900 shadow-2xl"
+	class="fixed inset-0 flex h-full w-full flex-col pb-12 divide-y divide-gray-500/20 overflow-auto rounded-b-xl bg-gray-900 shadow-2xl"
 >
 	<form onsubmit={handleSubmit} class="grid grid-cols-1">
 		<!-- svelte-ignore a11y_autofocus -->
@@ -192,7 +192,7 @@
 		</div>
 	{:else}
 		<!-- Results, show/hide based on command palette state. -->
-		<ul class="max-h-96 overflow-y-auto p-2 text-sm text-gray-400">
+		<ul class="max-h-96 min-h-64 overflow-y-auto p-2 text-sm text-gray-400">
 			{#each contracts as contract}
 				<!-- Active: "bg-gray-800 text-white outline-hidden" -->
 				<li class="flex w-full" tabindex="-1" role="option" aria-selected="false">
@@ -248,7 +248,7 @@
 	<div class="bg-gray-900">
 		<div class="w-full">
 			<div class="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
-				<div class="bg-gray-900/70 px-4 py-24 sm:px-6 lg:px-8">
+				<div class="bg-gray-900/70 px-4 py-8 sm:px-6 lg:px-8">
 					<p class="text-sm/6 font-medium text-gray-400">Funds EUR</p>
 					<p class="mt-2 flex items-baseline gap-x-2">
 						<span class="text-4xl font-semibold tracking-tight text-white"
@@ -256,7 +256,7 @@
 						>
 					</p>
 				</div>
-				<div class="bg-gray-900/70 px-4 py-24 sm:px-6 lg:px-8">
+				<div class="bg-gray-900/70 px-4 py-8 sm:px-6 lg:px-8">
 					<p class="text-sm/6 font-medium text-gray-400">Funds USD</p>
 					<p class="mt-2 flex items-baseline gap-x-2">
 						<span class="text-4xl font-semibold tracking-tight text-white"
@@ -264,7 +264,7 @@
 						>
 					</p>
 				</div>
-				<div class="bg-gray-900/70 px-4 py-24 sm:px-6 lg:px-8">
+				<div class="bg-gray-900/70 px-4 py-8 sm:px-6 lg:px-8">
 					<p class="text-sm/6 font-medium text-gray-400">Daily Realized PNL</p>
 					<p class="mt-2 flex items-baseline gap-x-2">
 						<span class="text-4xl font-semibold tracking-tight text-white"
@@ -272,7 +272,7 @@
 						>
 					</p>
 				</div>
-				<div class="bg-gray-900/70 px-4 py-24 sm:px-6 lg:px-8">
+				<div class="bg-gray-900/70 px-4 py-8 sm:px-6 lg:px-8">
 					<p class="text-sm/6 font-medium text-gray-400">Daily Unrealized PNL</p>
 					<p class="mt-2 flex items-baseline gap-x-2">
 						<span class="text-4xl font-semibold tracking-tight text-white"

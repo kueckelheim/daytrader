@@ -24,6 +24,7 @@
 	import drawPositionBoxes from './utils/drawPositionBoxes';
 	import drawLimitPrice from './utils/drawLimitPrice';
 	import handleClick from './utils/handleClick';
+	import drawTradingHours from './utils/drawTradingHours';
 
 	interface Props {
 		data: DataPoint[];
@@ -38,6 +39,7 @@
 		signalLine?: { x: number; y: number }[];
 		onClick?: (y: number) => void;
 		positions: Position[] | undefined;
+		tradingHours: { x: number; label: string }[];
 	}
 	let {
 		data,
@@ -51,6 +53,7 @@
 		macdLine,
 		signalLine,
 		onClick,
+		tradingHours,
 		positions
 	}: Props = $props();
 
@@ -154,6 +157,7 @@
 	$effect(() => {
 		const newData = data;
 		if (chart) {
+			drawTradingHours(tradingHours, chart, newData);
 			updateData(newData, chart);
 		}
 	});
@@ -187,6 +191,6 @@
 	<span>C: {tooltipData?.c?.toFixed(2) || ''}</span>
 	<span>H: {tooltipData?.h?.toFixed(2) || ''}</span>
 </div>
-<div class="relative flex-grow overflow-hidden w-full">
+<div class="relative w-full flex-grow overflow-hidden">
 	<canvas class="absolute inset-0 h-full w-full" bind:this={canvas}></canvas>
 </div>

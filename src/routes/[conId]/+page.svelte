@@ -84,10 +84,51 @@
 		$websocket?.send(JSON.stringify({ type: MessageType.SUBSRIBE_POSITIONS_UPDATE }));
 	};
 
+	function getETOffsetFromLocal(dateStr: string) {
+		const localDate = new Date(dateStr);
+		const etString = localDate.toLocaleString('en-US', { timeZone: 'America/New_York' });
+		const etDate = new Date(etString);
+		return localDate.getTime() - etDate.getTime(); // in ms
+	}
+	const parseToCEST = (str: string) => {
+		const year = str.slice(0, 4);
+		const month = str.slice(4, 6);
+		const day = str.slice(6, 8);
+		const hour = str.slice(9, 11);
+		const minute = str.slice(11, 13);
+
+		const dateString = `${year}-${month}-${day}T${hour}:${minute}:00`;
+		const offset = getETOffsetFromLocal(dateString);
+
+		// Convert to Europe/Berlin
+		const cestDate = new Date(new Date(dateString).getTime() + offset);
+		return cestDate.toISOString();
+	};
+
+	const getHours = (input: string, label: string) =>
+		input.split(';').flatMap((range) => {
+			const [startStr, endStr] = range.split('-');
+
+			const start = parseToCEST(startStr);
+			const end = parseToCEST(endStr);
+
+			return [
+				{ x: new Date(start).getTime(), label: `${label} start` },
+				{ x: new Date(end).getTime(), label: `${label} end` }
+			];
+		});
+
+	let tradingHours: { x: number; label: string }[] = $state([]);
 	$effect(() => {
 		if ($websocket && contractDetails && baseData.length && !subsribed) {
 			requestLatestBarUpdates();
 			requestPositionsUpdates();
+			if (contractDetails.tradingHours && contractDetails.liquidHours) {
+				tradingHours = [
+					...getHours(contractDetails.tradingHours, 'trading hours'),
+					...getHours(contractDetails.liquidHours, 'liquid hours')
+				];
+			}
 		}
 	});
 
@@ -150,6 +191,7 @@
 					signalLine={macd?.signalLine?.slice(-range)}
 					positions={[]}
 					{stopLoss}
+					{tradingHours}
 					{limitPrice}
 					{target}
 					onClick={handleClick}

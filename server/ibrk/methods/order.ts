@@ -28,7 +28,16 @@ export const place = async ({
 		account: accountId,
 		clientId: 0,
 		outsideRth: true,
-		transmit: true
+		transmit: true,
+		tif: 'GTD',
+		/**
+		 * The date and time until the order will be active.
+		 * You must enter GTD as the time in force to use this string.
+		 * The trade's "Good Till Date," format "YYYYMMDD hh:mm:ss (optional time zone)".
+		 */
+		goodTillDate:
+			new Date(Date.now() + 10_000).toISOString().replace('T', ' ').slice(0, 19).replace(/-/g, '') +
+			' UTC'
 	};
 
 	console.log('placing new order', order);

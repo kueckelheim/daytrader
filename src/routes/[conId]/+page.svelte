@@ -20,6 +20,7 @@
 	let baseData: DataPoint[] = $state([]);
 	let contractDetails: ContractDetails | undefined = $state(undefined);
 	let range = $state(CHART_RANGE.H1);
+	let lastUpdate = $state('');
 
 	let currentData = $derived(baseData.slice(-range));
 	let currentPrice = $derived(baseData[baseData.length - 1]?.c);
@@ -75,6 +76,10 @@
 					} else {
 						baseData = [...baseData, formatted];
 					}
+					lastUpdate = new Date().toLocaleTimeString([], {
+						hour: '2-digit',
+						minute: '2-digit'
+					});
 				}
 			});
 		}
@@ -173,7 +178,7 @@
 						</div>
 					{/if}
 				</div>
-				<div class="flex justify-end">
+				<div class="flex flex-col items-end">
 					<fieldset onchange={handleRangeChange} aria-label="Choose a range" class="flex space-x-2">
 						{#each Object.entries(CHART_RANGE) as [label, value]}
 							<label
@@ -184,6 +189,7 @@
 							</label>
 						{/each}
 					</fieldset>
+					<div class="text-xs text-gray-400">Latest update: {lastUpdate}</div>
 				</div>
 				<Chart
 					data={baseData.slice(-range)}

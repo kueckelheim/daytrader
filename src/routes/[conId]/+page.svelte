@@ -91,18 +91,22 @@
 		return localDate.getTime() - etDate.getTime(); // in ms
 	}
 	const parseToCEST = (str: string) => {
-		const year = str.slice(0, 4);
-		const month = str.slice(4, 6);
-		const day = str.slice(6, 8);
-		const hour = str.slice(9, 11);
-		const minute = str.slice(11, 13);
+		try {
+			const year = str.slice(0, 4);
+			const month = str.slice(4, 6);
+			const day = str.slice(6, 8);
+			const hour = str.slice(9, 11);
+			const minute = str.slice(11, 13);
 
-		const dateString = `${year}-${month}-${day}T${hour}:${minute}:00`;
-		const offset = getETOffsetFromLocal(dateString);
+			const dateString = `${year}-${month}-${day}T${hour}:${minute}:00`;
+			const offset = getETOffsetFromLocal(dateString);
 
-		// Convert to Europe/Berlin
-		const cestDate = new Date(new Date(dateString).getTime() + offset);
-		return cestDate.toISOString();
+			// Convert to Europe/Berlin
+			const cestDate = new Date(new Date(dateString).getTime() + offset);
+			return cestDate.toISOString();
+		} catch {
+			return null;
+		}
 	};
 
 	const getHours = (input: string, label: string) =>
@@ -113,8 +117,8 @@
 			const end = parseToCEST(endStr);
 
 			return [
-				{ x: new Date(start).getTime(), label: `${label} start` },
-				{ x: new Date(end).getTime(), label: `${label} end` }
+				...(start ? [{ x: new Date(start).getTime(), label: `${label} start` }] : []),
+				...(end ? [{ x: new Date(end).getTime(), label: `${label} end` }] : [])
 			];
 		});
 

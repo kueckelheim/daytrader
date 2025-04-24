@@ -10,6 +10,14 @@ const updateHandler = (
 	if (update.all?.get(accountId)?.length) {
 		onUpdate(update.all?.get(accountId)!.filter((pos) => pos.pos));
 	}
+	if (update.removed) {
+		for (const [_, positions] of update.removed.entries()) {
+			for (const pos of positions) {
+				// The position has been closed, create a trade
+				console.log('Trade was closed', pos);
+			}
+		}
+	}
 };
 
 export async function subscribeToPositionsUpdates(

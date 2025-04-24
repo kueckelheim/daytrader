@@ -21,7 +21,7 @@ export async function handleHistoricalMarketDataUpdateSubscription(
 					data: update
 				};
 				ws.send(JSON.stringify(response));
-				console.log(`Sent latest bar for ${contract.symbol}`);
+				// console.log(`Sent latest bar for ${contract.symbol}`);
 			},
 			() => {},
 			contract

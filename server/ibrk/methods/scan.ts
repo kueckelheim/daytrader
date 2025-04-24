@@ -111,17 +111,24 @@ const scan = (
 ) => {
 	client.getMarketScanner(subscriptionOptions, [], filterOptions).subscribe({
 		next: (value) => {
-			const initialLength = matches.length;
+			const currentIds = new Set<number>();
+			const rows = [...(value.added?.values() ?? []), ...(value.changed?.values() ?? [])];
 
-			if (value.added) {
-				getMatches(value.added, isHotByVolume);
-			} else if (value.changed) {
-				getMatches(value.changed, isHotByVolume);
+			for (const item of rows) {
+				currentIds.add(item.contract.contract.conId!);
+			}
+			getMatches(new Map(rows.map((item) => [item.contract.contract.conId!, item])), isHotByVolume);
+
+			// Remove stale matches (only if scan type matches)
+			for (let i = matches.length - 1; i >= 0; i--) {
+				const m = matches[i];
+				const shouldCheck = isHotByVolume ? m.isHotByVolume : m.isTopGainer;
+				if (shouldCheck && !currentIds.has(m.conId!)) {
+					matches.splice(i, 1);
+				}
 			}
 
-			if (initialLength !== matches.length) {
-				onUpdate(sort());
-			}
+			onUpdate(sort());
 		},
 		complete: () => {
 			console.log('Done!');

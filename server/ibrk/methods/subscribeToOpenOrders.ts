@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { OpenOrdersUpdate, OrderStatus } from '@stoqey/ib';
+import { OpenOrder, OpenOrdersUpdate, OrderStatus } from '@stoqey/ib';
 import client from '../client';
 
+const handleFilledOrder = (filledOrder: OpenOrder) => {
+	console.log('order filled', filledOrder);
+};
+
 const updateHandler = (update: OpenOrdersUpdate, onUpdate: (update: any) => void) => {
-	if (update.all?.length) {
-		onUpdate(update.all.filter((order) => order.orderState.status !== OrderStatus.Cancelled));
+	if (update.changed?.length) {
+		onUpdate(update.changed.filter((order) => order.orderState.status !== OrderStatus.Cancelled));
+		update.changed
+			.filter((order) => order.orderState.status === OrderStatus.Filled)
+			.forEach((order) => handleFilledOrder(order));
 	}
 };
 

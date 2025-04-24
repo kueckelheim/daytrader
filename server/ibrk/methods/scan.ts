@@ -17,7 +17,7 @@
 import {
 	Instrument,
 	LocationCode,
-	MarketScannerRows,
+	MarketScannerItem,
 	ScanCode,
 	ScannerSubscription,
 	TagValue
@@ -56,50 +56,29 @@ const filterOptions = [
 ];
 
 // Initialize an empty array to hold the scanner matches
-const matches: ScanMatch[] = [];
+let hotByVolumeResults: MarketScannerItem[] = [];
+let topGainersResults: MarketScannerItem[] = [];
 
-// Process the market scanner rows to extract relevant matches
-const getMatches = (rows: MarketScannerRows, isHotByVolume) => {
-	const matchMap = new Map<number, ScanMatch>();
+const getMatches = (): ScanMatch[] => {
+	const topGainersMap = new Map(
+		topGainersResults.map((item) => [item.contract.contract.conId, item])
+	);
 
-	// Iterate over each row and extract relevant data
-	for (const item of rows.values()) {
-		const conId = item.contract.contract.conId!;
-		matchMap.set(conId, {
-			symbol: item.contract.contract.symbol!,
-			isHotByVolume: !!isHotByVolume,
-			isTopGainer: !isHotByVolume,
-			conId: item.contract.contract.conId,
-			exchange: item.contract.contract.exchange,
-			currency: item.contract.contract.currency,
-			tradingHours: item.contract.tradingHours,
-			contract: item.contract.contract
+	return hotByVolumeResults
+		.filter((item) => topGainersMap.has(item.contract.contract.conId))
+		.map((item) => {
+			const contract = item.contract.contract;
+			return {
+				symbol: contract.symbol!,
+				isTopGainer: true,
+				isHotByVolume: true,
+				conId: contract.conId,
+				exchange: contract.exchange,
+				currency: contract.currency,
+				tradingHours: item.contract.tradingHours,
+				contract
+			};
 		});
-	}
-
-	matchMap.forEach((match, conId) => {
-		// If a match already exists, we update it (merge)
-		const existingMatch = matches.find((m) => m.conId === conId);
-		if (existingMatch) {
-			Object.assign(existingMatch, {
-				...match,
-				isHotByVolume: existingMatch.isHotByVolume || match.isHotByVolume,
-				isTopGainer: existingMatch.isTopGainer || match.isTopGainer
-			});
-		} else {
-			// If no match exists, we add it to the list
-			matches.push(match);
-		}
-	});
-};
-
-const sort = () => {
-	// Sort the matches based on priority, prioritizing those that meet both conditions
-	return matches.sort((a, b) => {
-		const aPriority = Number(a.isHotByVolume && a.isTopGainer);
-		const bPriority = Number(b.isHotByVolume && b.isTopGainer);
-		return bPriority - aPriority; // Higher priority comes first
-	});
 };
 
 // Subscribe to a market scanner and handle updates
@@ -111,24 +90,14 @@ const scan = (
 ) => {
 	client.getMarketScanner(subscriptionOptions, [], filterOptions).subscribe({
 		next: (value) => {
-			const currentIds = new Set<number>();
-			const rows = [...(value.added?.values() ?? []), ...(value.changed?.values() ?? [])];
-
-			for (const item of rows) {
-				currentIds.add(item.contract.contract.conId!);
-			}
-			getMatches(new Map(rows.map((item) => [item.contract.contract.conId!, item])), isHotByVolume);
-
-			// Remove stale matches (only if scan type matches)
-			for (let i = matches.length - 1; i >= 0; i--) {
-				const m = matches[i];
-				const shouldCheck = isHotByVolume ? m.isHotByVolume : m.isTopGainer;
-				if (shouldCheck && !currentIds.has(m.conId!)) {
-					matches.splice(i, 1);
-				}
+			const rows = [...(value.all?.values() || [])];
+			if (isHotByVolume) {
+				hotByVolumeResults = rows;
+			} else {
+				topGainersResults = rows;
 			}
 
-			onUpdate(sort());
+			onUpdate(getMatches());
 		},
 		complete: () => {
 			console.log('Done!');

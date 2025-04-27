@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AccountPositionsUpdate } from '@stoqey/ib';
 import client from '../client';
+import handleClosedTrade from './handleClosedTrade';
 
 const updateHandler = (
 	update: AccountPositionsUpdate,
@@ -13,8 +14,8 @@ const updateHandler = (
 	if (update.removed) {
 		for (const [_, positions] of update.removed.entries()) {
 			for (const pos of positions) {
-				// The position has been closed, create a trade
-				console.log('Trade was closed', pos);
+				// The position has been closed
+				handleClosedTrade(pos);
 			}
 		}
 	}

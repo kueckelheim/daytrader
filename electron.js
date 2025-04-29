@@ -60,6 +60,8 @@ const createWindow = () => {
 		}
 	});
 
+	win.setTitle('IBKR');
+
 	win.loadURL('http://localhost:3000');
 
 	win.webContents.setWindowOpenHandler(({ url }) => {
